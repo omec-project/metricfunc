@@ -15,8 +15,7 @@ func init() {
 
 const (
 	CSubscriber CoreEventType = iota
-	CUpf
-	CRan
+	CNetworkFunction
 	CAlarm
 )
 
@@ -24,19 +23,17 @@ func (e CoreEventType) String() string {
 	switch e {
 	case CSubscriber:
 		return "SUBSCRIBER"
-	case CUpf:
-		return "UPF"
-	case CRan:
-		return "RAN"
+	case CNetworkFunction:
+		return "NF"
 	case CAlarm:
 		return "ALARM"
 	}
-	return "unknown"
+	return "Unknown"
 }
 
 // Collective Subscriber info sent towards analytic engine
 type CoreSubscriber struct {
-	version     int    `json:"version,omitempty"`
+	Version     int    `json:"version,omitempty"`
 	Imsi        string `json:"imsi, omitempty"`
 	SmfId       string `json:"smfId,omitempty"`
 	SmfSubState string `json:"smfSubState,omitempty"` //Connected, Idle, Deleted
@@ -55,35 +52,28 @@ type CoreSubscriber struct {
 	TacId       string `json:"tacid"`
 }
 
-// UPF state updates
-type CoreUpf struct {
-	version int    `json:"version,omitempty"`
-	UpfName string `json:"upfid"`
-	UpfAddr string `json:"upfAddr"`
-	State   string `json:"state,omitempty"` // init, Connected, disconnected
-}
-
-// RAN state updates
-type CoreRan struct {
-	version int      `json:"version,omitempty"`
-	State   string   `json:"state,omitempty"` // Connected, disconnected
-	GnbId   string   `json:"gnbid"`           // string since we can have 0 prefix
-	TacId   []string `json:"tacid"`           // string since we can have 0 prefix
-	GnbAddr string   `json:"GnbAddr"`         // ipaddress:port
+type CoreNetworkFunction struct {
+	Version int      `json:"version,omitempty"`
+	nfType  string   `json:"nftype,omitempty"` // gNB, UPF, AMF, UPF, SMF, NRF,...
+	State   string   `json:"state,omitempty"`  // Unknown, Active, Disconnected
+	nfId    string   `json:"nfid,omitempty"`            // string since we can have 0 prefix
+	nfName  string   `json:"name,omitempty"`
+	TacId   []string `json:"tacid,omitempty"`  // string since we can have 0 prefix
+	nfAddr  string   `json:"nfAddr,omitempty"` // ipaddress:port
 }
 
 // Alarms - UPF DOWN, RAN DOWN, NF Down, DB Down.
 type CoreAlarm struct {
-	version int `json:"version,omitempty"`
+	Version     int    `json:"version,omitempty"`
+	Description string `json: "description,omitempty"`
 }
 
 type CoreEvent struct {
-	version    int             `json:"version,omitempty"`
-	Type       string          `json:"type"`
-	Subscriber *CoreSubscriber `json:"subscriber,omitempty"`
-	Upf        *CoreUpf        `json:"upf,omitempty"`
-	Ran        *CoreRan        `json:"ran,omitempty"`
-	Alarm      *CoreAlarm      `json:"alarm,omitempty"`
+	Version    int              `json:"version,omitempty"`
+	Type       string           `json:"type"`
+	Subscriber *CoreSubscriber  `json:"subscriber,omitempty"`
+	NetworkFn  *CoreNetworkFunction `json:"networkfunction,omitempty"`
+	Alarm      *CoreAlarm       `json:"alarm,omitempty"`
 }
 
 func GetSubscriberEvent(sub *CoreSubscriber) CoreEvent {
@@ -107,6 +97,20 @@ func StoreSubscriber(sub *CoreSubscriber) *CoreSubscriber {
 		}
 	}
 	return s
+}
+
+func GetNetworkFunctionEvent(nf *CoreNetworkFunction) CoreEvent {
+	s := CNetworkFunction
+	st := fmt.Sprintf("%s", s)
+	e := CoreEvent{Type: st, NetworkFn: nf}
+	return e
+}
+
+func GetAlarmEvent(al *CoreAlarm) CoreEvent {
+	s := CAlarm
+	st := fmt.Sprintf("%s", s)
+	e := CoreEvent{Type: st, Alarm: al}
+	return e
 }
 
 func (e CoreEvent) GetMessage() ([]byte, error) {
