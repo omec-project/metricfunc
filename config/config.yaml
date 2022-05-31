@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2022-present Intel Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
+info:
+  version: 1.0.0
+  description: Metric Collector initial local configuration
+
+logger:
+  logLevel: "debug"
+
+configuration:
+  nfKafka:
+    group: analytics #mongodb, restapi, prometheus
+    urls:
+      - "sdcore-kafka"
+    topic: "sdcore-aiab"
+  analyticsKafka: #required only if mode is analytics 
+    urls:
+      - "sdcore-kafka"
+    topic: "analytics"
+
