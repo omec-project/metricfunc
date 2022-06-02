@@ -164,6 +164,7 @@ func analyticExporter(ctx context.Context, ac chan *ctxt.CoreEvent, ec chan erro
 		case msg := <-ac:
 			log.Printf("Received Msg in Analytic Export goroutine : %v", msg)
 			c, _ := msg.GetMessage()
+			log.Printf("Msg for Analytic : %v", msg)
 			writer.SendMessage(c)
 		}
 	}

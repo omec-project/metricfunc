@@ -44,16 +44,16 @@ type CoreSubscriber struct {
 	IPAddress   string `json:"ipaddress, omitempty"`
 	LSEID       int    `json:"lseid,omitempty"`
 	RSEID       int    `json:"rseid,omitempty"`
-	UpfName     string `json:"upfid"`
-	UpfAddr     string `json:"upfAddr"`
+	UpfName     string `json:"upfid,omitempty"`
+	UpfAddr     string `json:"upfAddr,omitempty"`
 	AmfId       string `json:"amfId,omitempty"`
 	Guti        string `json:"guti,omitempty"`
 	Tmsi        int32  `json:"tmsi,omitempty"`
 	AmfNgapId   int64  `json:"amfngapId,omitempty"`
 	RanNgapId   int64  `json:"ranngapId,omitempty"`
 	AmfSubState string `json:"amfSubState, omitempty"` //RegisteredC, RegisteredI, Deregistered, Deleted
-	GnbId       string `json:"gnbid"`
-	TacId       string `json:"tacid"`
+	GnbId       string `json:"gnbid,omitempty"`
+	TacId       string `json:"tacid,omitempty"`
 }
 
 type CoreNetworkFunction struct {
