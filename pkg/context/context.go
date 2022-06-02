@@ -48,9 +48,9 @@ type CoreSubscriber struct {
 	UpfAddr     string `json:"upfAddr"`
 	AmfId       string `json:"amfId,omitempty"`
 	Guti        string `json:"guti,omitempty"`
-	Tmsi        string `json:"tmsi,omitempty"`
-	AmfNgapId   int    `json:"amfngapId,omitempty"`
-	RanNgapId   int    `json:"ranngapId,omitempty"`
+	Tmsi        int32  `json:"tmsi,omitempty"`
+	AmfNgapId   int64  `json:"amfngapId,omitempty"`
+	RanNgapId   int64  `json:"ranngapId,omitempty"`
 	AmfSubState string `json:"amfSubState, omitempty"` //RegisteredC, RegisteredI, Deregistered, Deleted
 	GnbId       string `json:"gnbid"`
 	TacId       string `json:"tacid"`
