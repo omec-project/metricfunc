@@ -40,8 +40,8 @@ type CoreSubscriber struct {
 	Version     int    `json:"version,omitempty"`
 	Imsi        string `json:"imsi, omitempty"`
 	SmfId       string `json:"smfId,omitempty"`
-	SmfSubState string `json:"smfSubState,omitempty"` //Connected, Idle, Deleted
-	IPAddress   string `json:"ipaddress, omitempty"`
+	SmfSubState string `json:"smfSubState,omitempty"` //Connected, Idle, DisConnected
+	IPAddress   string `json:"ipaddress,omitempty"`
 	LSEID       int    `json:"lseid,omitempty"`
 	RSEID       int    `json:"rseid,omitempty"`
 	UpfName     string `json:"upfid,omitempty"`
@@ -51,7 +51,7 @@ type CoreSubscriber struct {
 	Tmsi        int32  `json:"tmsi,omitempty"`
 	AmfNgapId   int64  `json:"amfngapId,omitempty"`
 	RanNgapId   int64  `json:"ranngapId,omitempty"`
-	AmfSubState string `json:"amfSubState, omitempty"` //RegisteredC, RegisteredI, Deregistered, Deleted
+	AmfSubState string `json:"amfSubState,omitempty"` //RegisteredC, RegisteredI, DeRegistered, Deleted
 	GnbId       string `json:"gnbid,omitempty"`
 	TacId       string `json:"tacid,omitempty"`
 }
