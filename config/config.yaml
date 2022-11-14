@@ -1,0 +1,35 @@
+# SPDX-FileCopyrightText: 2022-present Intel Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
+info:
+  version: 1.0.0
+  description: Metric Collector initial local configuration
+
+logger:
+  level: debug
+
+configuration:
+  nfStreams:
+    - topic:
+        topicName: "sdcore-data-source-smf"
+        topicGroup: "analytics" #mongodb, restapi, prometheus 
+      urls:
+        - "sd-core-kafka-headless:9092"
+    - topic:
+        topicName: "sdcore-data-source-amf"
+        topicGroup: "analytics" #mongodb, restapi, prometheus 
+      urls:
+        - "sd-core-kafka-headless:9092"   
+  analyticsStream: #required only if mode is analytics
+    enable: false
+    urls:
+      - "sd-core-kafka-headless:9092"
+    topic: "analytics"
+  apiServer:
+    addr: "metricfunc"
+    port: 9301
+  prometheusServer:
+    addr: "metricfunc"
+    port: 9302
+
