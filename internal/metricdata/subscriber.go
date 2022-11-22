@@ -14,7 +14,6 @@ import (
 )
 
 var (
-	smContextCount  uint64
 	smContextActive uint64
 )
 
@@ -26,11 +25,6 @@ func incSMContextActive() uint64 {
 func decSMContextActive() uint64 {
 	atomic.AddUint64(&smContextActive, ^uint64(0))
 	return smContextActive
-}
-
-func GetSMContextCount() uint64 {
-	atomic.AddUint64(&smContextCount, 1)
-	return smContextCount
 }
 
 func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf metricinfo.NfType) {
@@ -48,7 +42,7 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 
 func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) error {
 	metricData.SubLock.Lock()
-	//defer metricData.SubLock.Unlock()
+
 	_, ok := metricData.Subscribers[sub.Imsi]
 	if !ok {
 		metricData.Subscribers[sub.Imsi] = sub
@@ -88,20 +82,23 @@ func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	defer metricData.SubLock.Unlock()
 	imsi := sub.Imsi
 	s, ok := metricData.Subscribers[imsi]
-	if ok {
-		deletePrometheusCoreSubData(s)
-		s.SmfSubState = sub.SmfSubState
-		s.AmfSubState = sub.AmfSubState
-
-		//register disconnect state
-		pushPrometheusCoreSubData(s)
-		delete(metricData.Subscribers, imsi)
-
-		//register subscriber delete
-		deletePrometheusCoreSubData(s)
-		promclient.SetSmfSessStats(s.SmfIp, sub.Slice, sub.Dnn, sub.UpfName, decSMContextActive())
-		logger.CacheLog.Debugf("deleting subscriber with imsi [%s] ", imsi)
+	if !ok {
+		return fmt.Errorf("subscriber with imsi [%s] already deleted ", imsi)
 	}
+
+	promclient.SetSmfSessStats(s.SmfIp, s.Slice, s.Dnn, s.UpfName, decSMContextActive())
+	deletePrometheusCoreSubData(s)
+	s.SmfSubState = sub.SmfSubState
+	s.AmfSubState = sub.AmfSubState
+
+	//register disconnect state
+	pushPrometheusCoreSubData(s)
+	delete(metricData.Subscribers, imsi)
+
+	//register subscriber delete
+	deletePrometheusCoreSubData(s)
+
+	logger.CacheLog.Debugf("deleting subscriber with imsi [%s] ", imsi)
 
 	return nil
 }
@@ -127,13 +124,13 @@ func GetSubscriberAll() []string {
 	return imsis
 }
 
+//Pushing to prometheus client module
 func pushPrometheusCoreSubData(sub *metricinfo.CoreSubscriber) {
-	//Push to prometheus
 	promclient.PushCoreSubData(sub.Imsi, sub.IPAddress, sub.SmfSubState, sub.SmfIp, sub.Dnn, sub.Slice, sub.UpfName)
 }
 
+//Pushing to prometheus client module
 func deletePrometheusCoreSubData(sub *metricinfo.CoreSubscriber) {
-	//Push to prometheus
 	promclient.DeleteCoreSubData(sub.Imsi, sub.IPAddress, sub.SmfSubState, sub.SmfIp, sub.Dnn, sub.Slice, sub.UpfName)
 }
 

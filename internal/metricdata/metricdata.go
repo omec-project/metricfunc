@@ -26,5 +26,6 @@ func init() {
 		Subscribers: make(map[string]*metricinfo.CoreSubscriber),
 		NfStatus:    make(map[string]*metricinfo.CNfStatus),
 		SmfSvcStats: nfServiceStats{svcStats: make(map[string]map[string]uint64)},
+		AmfSvcStats: nfServiceStats{svcStats: make(map[string]map[string]uint64)},
 	}
 }

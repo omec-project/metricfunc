@@ -7,10 +7,12 @@ package reader
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
+	"github.com/omec-project/metricfunc/logger"
 	"github.com/omec-project/metricfunc/pkg/metricinfo"
 	"github.com/segmentio/kafka-go"
 )
@@ -20,7 +22,7 @@ func StartKafkaReader(cfg *config.Configuration) {
 	//Start Kafka Event Reader
 	for _, nfStream := range cfg.NfStreams {
 		r := kafka.NewReader(kafka.ReaderConfig{
-			Brokers: nfStream.Urls,
+			Brokers: makeUrlsFromUriPort(nfStream.Urls),
 			Topic:   nfStream.Topic.TopicName,
 			GroupID: nfStream.Topic.TopicGroups,
 		})
@@ -29,13 +31,23 @@ func StartKafkaReader(cfg *config.Configuration) {
 	}
 }
 
+//make urls from config uri and port
+func makeUrlsFromUriPort(uriPortCfg []config.Urls) []string {
+	var urls []string
+	for _, uriPort := range uriPortCfg {
+		urls = append(urls, fmt.Sprintf("%s:%d", uriPort.Uri, uriPort.Port))
+	}
+
+	return urls
+}
+
 func getSourceNfType(r *kafka.Reader) metricinfo.NfType {
 
 	topic := r.Config().Topic
-	switch string(topic[len(topic)-3:]) {
-	case "smf":
+	switch topic {
+	case "sdcore-data-source-smf":
 		return metricinfo.NfTypeSmf
-	case "amf":
+	case "sdcore-data-source-amf":
 		return metricinfo.NfTypeAmf
 	default:
 		log.Default().Fatalf("invalid topic name [%v] ", topic)
@@ -44,23 +56,22 @@ func getSourceNfType(r *kafka.Reader) metricinfo.NfType {
 }
 
 func reader(r *kafka.Reader) {
-	log.Printf("kafka reader for topic [%v] initialised ", r.Config().Topic)
+	logger.AppLog.Infof("kafka reader for topic [%v] initialised ", r.Config().Topic)
+	sourceNf := getSourceNfType(r)
 	for {
 		// the `ReadMessage` function blocks until we receive the next event
 		ctxt := context.Background()
 		msg, err := r.ReadMessage(ctxt)
 		if err != nil {
-			log.Printf("Error reading off kafka bus err:%v", err)
+			logger.AppLog.Errorf("Error reading off kafka bus err:%v", err)
 		}
-		log.Printf("stream [%v] message %s ", r.Config().Topic, string(msg.Value))
+		logger.AppLog.Debugf("stream [%v] message %s ", r.Config().Topic, string(msg.Value))
 
 		var metricEvent metricinfo.MetricEvent
 		//Unmarshal the msg
 		if err := json.Unmarshal(msg.Value, &metricEvent); err != nil {
-			log.Fatalf("unmarshal smf event error %v ", err.Error())
+			logger.AppLog.Fatalf("unmarshal smf event error %v ", err.Error())
 		}
-
-		sourceNf := getSourceNfType(r)
 
 		switch metricEvent.EventType {
 		case metricinfo.CSubscriberEvt:

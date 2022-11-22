@@ -23,7 +23,7 @@ DOCKER_TARGETS           ?= metricfunc
 docker-build:
 	@go mod vendor
 	for target in $(DOCKER_TARGETS); do \
-		DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) buildx build --platform linux/amd64  $(DOCKER_BUILD_ARGS) \
+		DOCKER_BUILDKIT=$(DOCKER_BUILDKIT) docker buildx build --platform linux/amd64  $(DOCKER_BUILD_ARGS) \
 			--target $$target \
 			--tag ${DOCKER_REGISTRY}${DOCKER_REPOSITORY}5gc-$$target:${DOCKER_TAG} \
 			--build-arg org_label_schema_version="${DOCKER_VERSION}" \

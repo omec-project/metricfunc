@@ -17,6 +17,7 @@ var (
 	GinLog    *logrus.Entry
 	CacheLog  *logrus.Entry
 	PromLog   *logrus.Entry
+	AppLog    *logrus.Entry
 )
 
 func init() {
@@ -35,6 +36,7 @@ func init() {
 	GinLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Gin"})
 	CacheLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Cache"})
 	PromLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Prometheus"})
+	AppLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "App"})
 
 }
 

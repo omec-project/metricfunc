@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/logger"
 	"github.com/omec-project/metricfunc/pkg/metricinfo"
 )
@@ -34,16 +35,18 @@ func handleSmfServiceEvent(msgType *metricinfo.CoreMsgType) {
 	defer metricData.SmfSvcStats.svcStatLock.Unlock()
 
 	//Check if bucket already exist
-	if stats, ok := metricData.SmfSvcStats.svcStats[msgType.SourceNfIp]; ok {
+	if stats, ok := metricData.SmfSvcStats.svcStats[msgType.SourceNfId]; ok {
 		stats[msgType.MsgType] = stats[msgType.MsgType] + 1
+		promclient.IncrementSmfSvcStats(msgType.SourceNfId, msgType.MsgType)
 		return
 	}
 
 	stat := make(map[string]uint64)
 	stat[msgType.MsgType] = 1
-	metricData.SmfSvcStats.svcStats[msgType.SourceNfIp] = stat
+	metricData.SmfSvcStats.svcStats[msgType.SourceNfId] = stat
+	promclient.IncrementSmfSvcStats(msgType.SourceNfId, msgType.MsgType)
 
-	fmt.Printf("smf svc metric data content : %v ", metricData.SmfSvcStats.svcStats)
+	logger.CacheLog.Debugf("smf svc metric data content : %v ", metricData.SmfSvcStats.svcStats)
 }
 
 func handleAmfServiceEvent(msgType *metricinfo.CoreMsgType) {
@@ -52,16 +55,18 @@ func handleAmfServiceEvent(msgType *metricinfo.CoreMsgType) {
 	defer metricData.AmfSvcStats.svcStatLock.Unlock()
 
 	//Check if bucket already exist
-	if stats, ok := metricData.AmfSvcStats.svcStats[msgType.SourceNfIp]; ok {
+	if stats, ok := metricData.AmfSvcStats.svcStats[msgType.SourceNfId]; ok {
 		stats[msgType.MsgType] = stats[msgType.MsgType] + 1
+		promclient.IncrementAmfSvcStats(msgType.SourceNfId, msgType.MsgType)
 		return
 	}
 
 	stat := make(map[string]uint64)
 	stat[msgType.MsgType] = 1
-	metricData.AmfSvcStats.svcStats[msgType.SourceNfIp] = stat
+	metricData.AmfSvcStats.svcStats[msgType.SourceNfId] = stat
+	promclient.IncrementAmfSvcStats(msgType.SourceNfId, msgType.MsgType)
 
-	fmt.Printf("amf svc metric data content : %v ", metricData.AmfSvcStats.svcStats)
+	logger.CacheLog.Debugf("amf svc metric data content : %v ", metricData.AmfSvcStats.svcStats)
 }
 
 func GetNfServiceStatsDetail(nfType string) (map[string](map[string]uint64), error) {
@@ -78,7 +83,6 @@ func GetNfServiceStatsDetail(nfType string) (map[string](map[string]uint64), err
 }
 
 func GetSmfServiceStatDetail() (map[string](map[string]uint64), error) {
-	//fillTestSvcStats()
 
 	metricData.SmfSvcStats.svcStatLock.RLock()
 	defer metricData.SmfSvcStats.svcStatLock.RUnlock()
@@ -93,17 +97,3 @@ func GetAmfServiceStatDetail() (map[string](map[string]uint64), error) {
 
 	return metricData.AmfSvcStats.svcStats, nil
 }
-
-/*
-func fillTestSvcStats() {
-	cm1 := metricinfo.CoreMsgType{MsgType: "pdu_sess_create_req", SourceNfIp: "smf-ip: 1.1.1.1"}
-	IncrementSmfServiceStat(&cm1)
-	cm12 := metricinfo.CoreMsgType{MsgType: "pdu_sess_update_req", SourceNfIp: "smf-ip: 1.1.1.1"}
-	IncrementSmfServiceStat(&cm12)
-	cm2 := metricinfo.CoreMsgType{MsgType: "pdu_sess_update_req", SourceNfIp: "smf-ip: 2.2.2.2"}
-	IncrementSmfServiceStat(&cm2)
-	cm3 := metricinfo.CoreMsgType{MsgType: "pdu_sess_delete_req", SourceNfIp: "smf-ip: 3.3.3.3"}
-	IncrementSmfServiceStat(&cm3)
-	fmt.Printf("metric data content : %v ", metricData.SmfSvcStats.svcStats)
-}
-*/

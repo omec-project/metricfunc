@@ -15,13 +15,15 @@ configuration:
         topicName: "sdcore-data-source-smf"
         topicGroup: "analytics" #mongodb, restapi, prometheus 
       urls:
-        - "sd-core-kafka-headless:9092"
+        - uri: "sd-core-kafka-headless"
+          port: :9092
     - topic:
         topicName: "sdcore-data-source-amf"
         topicGroup: "analytics" #mongodb, restapi, prometheus 
       urls:
-        - "sd-core-kafka-headless:9092"   
-  analyticsStream: #required only if mode is analytics
+        - uri: "sd-core-kafka-headless"
+          port :9092   
+  analyticsStream: #this shall be producer for Analytics Func
     enable: false
     urls:
       - "sd-core-kafka-headless:9092"
@@ -31,5 +33,8 @@ configuration:
     port: 9301
   prometheusServer:
     addr: "metricfunc"
-    port: 9302
+    port: 9089
+  debugProfileServer:
+    addr: "metricfunc"
+    port: 5001
 

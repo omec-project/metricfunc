@@ -6,8 +6,8 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"os"
 
@@ -24,14 +24,9 @@ import (
 	"github.com/omec-project/metricfunc/logger"
 )
 
-var TopicsCfg []string
-var BrokerURLCfg []string
 var PodIp string
 
 func init() {
-	TopicsCfg = []string{"sdcore-data-source-smf", "sdcore-data-source-amf"}
-	BrokerURLCfg = []string{"sd-core-kafka-headless:9092"}
-
 	podIpStr := os.Getenv("POD_IP")
 	PodIp = net.ParseIP(podIpStr).To4().String()
 
@@ -42,27 +37,27 @@ func main() {
 	//Read provided config
 	cfgFilePtr := flag.String("metrics", "../../config/config.yaml", "is a config file")
 	flag.Parse()
-	log.Printf("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
+	logger.AppLog.Infof("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
 
 	cfg := config.Config{}
 	if content, err := ioutil.ReadFile(*cfgFilePtr); err != nil {
-		log.Println("Readfile failed called ", err)
+		logger.AppLog.Errorf("Readfile failed called ", err)
 		return
 	} else {
 
 		if yamlErr := yaml.Unmarshal(content, &cfg); yamlErr != nil {
-			log.Println("yaml parsing failed ", yamlErr)
+			logger.AppLog.Errorf("yaml parsing failed ", yamlErr)
 			return
 		}
 	}
 
-	log.Printf("Configuration : %v", cfg.Configuration)
+	logger.AppLog.Infof("Configuration : %v", cfg.Configuration)
 	cfg.Configuration.ApiServer.Addr = PodIp
 	cfg.Configuration.PrometheusServer.Addr = PodIp
 
 	//set log level
 	if level, err := logrus.ParseLevel(cfg.Logger.LogLevel); err == nil {
-		log.Printf("setting log level [%v]", cfg.Logger.LogLevel)
+		logger.AppLog.Infof("setting log level [%v]", cfg.Logger.LogLevel)
 		logger.SetLogLevel(level)
 	}
 
@@ -76,9 +71,14 @@ func main() {
 	go promclient.StartPrometheusClient(&cfg.Configuration.PrometheusServer)
 
 	//Go Pprofiling
-	go func() {
-		http.ListenAndServe(":5001", nil)
-	}()
+	debugProfPort := cfg.Configuration.DebugProfile.Port
+	if debugProfPort != 0 {
+		logger.AppLog.Infof("pprofile exposed on port [%v] ", debugProfPort)
+		httpAddr := fmt.Sprintf(":%d", debugProfPort)
+		go func() {
+			http.ListenAndServe(httpAddr, nil)
+		}()
+	}
 
 	//Start MongoDB
 	select {}

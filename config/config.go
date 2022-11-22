@@ -24,6 +24,7 @@ type Configuration struct {
 	AnalyticsStream  *AnalyticsStream `yaml:"analyticsStream,omitempty"`
 	ApiServer        ServerAddr       `yaml:"apiServer,omitempty"`
 	PrometheusServer ServerAddr       `yaml:"prometheusServer,omitempty"`
+	DebugProfile     ServerAddr       `yaml:"debugProfileServer,omitempty"`
 }
 
 type ServerAddr struct {
@@ -31,9 +32,14 @@ type ServerAddr struct {
 	Port int    `yaml:"port,omitempty"`
 }
 
+type Urls struct {
+	Uri  string `yaml:"uri,omitempty"`
+	Port int    `yaml:"port,omitempty"`
+}
+
 type NFStream struct {
-	Urls  []string `yaml:"urls,omitempty"`
-	Topic Topic    `yaml:"topic,omitempty"`
+	Urls  []Urls `yaml:"urls,omitempty"`
+	Topic Topic  `yaml:"topic,omitempty"`
 }
 
 type Topic struct {

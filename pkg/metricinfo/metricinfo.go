@@ -31,7 +31,7 @@ type CoreSubscriber struct {
 
 type CoreMsgType struct {
 	MsgType    string `json:"msgType,omitempty"`
-	SourceNfIp string `json:"sourceNfIp,omitempty"`
+	SourceNfId string `json:"sourceNfId,omitempty"`
 }
 
 type CoreEventType int64
