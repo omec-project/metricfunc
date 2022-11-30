@@ -28,3 +28,4 @@ SPDX-License-Identifier: Apache-2.0
 4. GetNfServiceStats (/nmetric-func/v1/nfServiceStatsSummary/<AMF/SMF>)
 5. GetNfServiceStatsAll (/nmetric-func/v1/nfServiceStats/all)
 
+  
