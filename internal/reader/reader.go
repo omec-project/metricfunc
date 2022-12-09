@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
@@ -64,6 +65,8 @@ func reader(r *kafka.Reader) {
 		msg, err := r.ReadMessage(ctxt)
 		if err != nil {
 			logger.AppLog.Errorf("Error reading off kafka bus err:%v", err)
+			time.Sleep(10 * time.Millisecond)
+			continue
 		}
 		logger.AppLog.Debugf("stream [%v] message %s ", r.Config().Topic, string(msg.Value))
 
