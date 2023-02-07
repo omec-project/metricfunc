@@ -12,12 +12,13 @@ import (
 )
 
 var (
-	log       *logrus.Logger
-	ApiSrvLog *logrus.Entry
-	GinLog    *logrus.Entry
-	CacheLog  *logrus.Entry
-	PromLog   *logrus.Entry
-	AppLog    *logrus.Entry
+	log           *logrus.Logger
+	ApiSrvLog     *logrus.Entry
+	GinLog        *logrus.Entry
+	CacheLog      *logrus.Entry
+	PromLog       *logrus.Entry
+	AppLog        *logrus.Entry
+	ControllerLog *logrus.Entry
 )
 
 func init() {
@@ -37,6 +38,7 @@ func init() {
 	CacheLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Cache"})
 	PromLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Prometheus"})
 	AppLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "App"})
+	ControllerLog = log.WithFields(logrus.Fields{"component": "Controller", "category": "App"})
 
 }
 

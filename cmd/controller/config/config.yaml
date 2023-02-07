@@ -1,0 +1,22 @@
+# SPDX-FileCopyrightText: 2022-present Intel Corporation
+#
+# SPDX-License-Identifier: Apache-2.0
+
+info:
+  version: 1.0.0
+  description: Controller Pod initial local configuration
+
+logger:
+  level: debug
+
+configuration:
+  onosApiServer:
+    addr: "onosapp"
+    port: 9301
+  rocEndPoint:
+    addr: "aether-roc-umbrella-aether-roc-gui-v2-1-external.aether-roc.svc"
+    port: 31194
+  metricFuncEndPoint:
+    addr: "metricfunc.omec.svc"
+    port: 5001
+

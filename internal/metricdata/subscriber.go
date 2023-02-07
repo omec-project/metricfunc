@@ -112,6 +112,18 @@ func GetSubscriber(key string) (*metricinfo.CoreSubscriber, error) {
 	return nil, fmt.Errorf("subscriber with key [%v] not found ", key)
 }
 
+func GetSubscriberImsiFromIpAddr(ipaddr string) (*metricinfo.CoreSubscriber, error) {
+	metricData.SubLock.RLock()
+	defer metricData.SubLock.RUnlock()
+	for imsi, sub := range metricData.Subscribers {
+		if sub.IPAddress == ipaddr {
+			logger.CacheLog.Infof("found subscriber with ip-addr [%s], imsi [%s]", ipaddr, imsi)
+			return sub, nil
+		}
+	}
+	return nil, fmt.Errorf("subscriber with ip-addr [%v] not found ", ipaddr)
+}
+
 func GetSubscriberAll() []string {
 	imsis := []string{}
 	metricData.SubLock.RLock()
