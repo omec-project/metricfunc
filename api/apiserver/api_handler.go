@@ -5,9 +5,11 @@
 package apiserver
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/omec-project/metricfunc/cmd/controller"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
 	"github.com/omec-project/openapi"
@@ -112,4 +114,17 @@ func GetNfServiceStatsDetail(c *gin.Context) {
 
 //Gives summary of all services
 func GetNfServiceStatsAll(c *gin.Context) {
+}
+
+func PushTestIPs(c *gin.Context) {
+	requestBody, err := c.GetRawData()
+	if err != nil {
+		logger.ApiSrvLog.Errorf("get requestbody error %s", err.Error())
+		return
+	}
+	var rogueIPs controller.RogueIPs
+	json.Unmarshal(requestBody, &rogueIPs)
+
+	logger.ApiSrvLog.Infoln("Test RogueIPs: ", rogueIPs)
+	controller.RogueChannel <- rogueIPs
 }

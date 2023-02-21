@@ -112,6 +112,13 @@ var routes = Routes{
 		"/nfServiceStats/all",
 		GetNfServiceStatsAll,
 	},
+
+	{
+		"TestIPs",
+		strings.ToUpper("Post"),
+		"/testIPs",
+		PushTestIPs,
+	},
 }
 
 /* APIs
