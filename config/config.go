@@ -13,6 +13,7 @@ type Config struct {
 type Info struct {
 	Version     string `yaml:"version,omitempty"`
 	Description string `yaml:"description,omitempty"`
+	HttpVersion int    `yaml:"http-version,omitempty"`
 }
 
 type Logger struct {
@@ -20,16 +21,21 @@ type Logger struct {
 }
 
 type Configuration struct {
-	NfStreams        []NFStream       `yaml:"nfStreams,omitempty"`
-	AnalyticsStream  *AnalyticsStream `yaml:"analyticsStream,omitempty"`
-	ApiServer        ServerAddr       `yaml:"apiServer,omitempty"`
-	PrometheusServer ServerAddr       `yaml:"prometheusServer,omitempty"`
-	DebugProfile     ServerAddr       `yaml:"debugProfileServer,omitempty"`
+	NfStreams          []NFStream       `yaml:"nfStreams,omitempty"`
+	AnalyticsStream    *AnalyticsStream `yaml:"analyticsStream,omitempty"`
+	ApiServer          ServerAddr       `yaml:"apiServer,omitempty"`
+	PrometheusServer   ServerAddr       `yaml:"prometheusServer,omitempty"`
+	DebugProfile       ServerAddr       `yaml:"debugProfileServer,omitempty"`
+	OnosApiServer      ServerAddr       `yaml:"onosApiServer,omitempty"`
+	RocEndPoint        ServerAddr       `yaml:"rocEndPoint,omitempty"`
+	MetricFuncEndPoint ServerAddr       `yaml:"metricFuncEndPoint,omitempty"`
+	ControllerFlag     bool             `yaml:"controllerFlag,omitempty"`
 }
 
 type ServerAddr struct {
-	Addr string `yaml:"addr,omitempty"` // IP used to run the server in the node.
-	Port int    `yaml:"port,omitempty"`
+	Addr         string `yaml:"addr,omitempty"` // IP used to run the server in the node.
+	Port         int    `yaml:"port,omitempty"`
+	PollInterval int    `yaml:"pollInterval,omitempty"`
 }
 
 type Urls struct {

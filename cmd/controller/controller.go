@@ -18,14 +18,13 @@ import (
 	"strings"
 	"time"
 
-	CConfig "github.com/omec-project/metricfunc/cmd/controller/config"
+	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
 	"golang.org/x/net/http2"
-	"gopkg.in/yaml.v2"
 )
 
-var ControllerConfig CConfig.Config
+var ControllerConfig config.Config
 var client *http.Client
 
 //creating for testing
@@ -59,25 +58,10 @@ type SiteInfo struct {
 	SimCardDetails []SimCard `yaml:"sim-card,omitempty" json:"sim-card,omitempty"`
 }
 
-func InitConfigFactory(f string) error {
+func InitControllerConfig(CConfig *config.Config) error {
+	ControllerConfig = *CConfig
 	//Read provided config
-	fmt.Printf("Controller has started with configuration file [%v]", f)
-
-	if content, err := ioutil.ReadFile(f); err != nil {
-		logger.ControllerLog.Errorln("Readfile failed called ", err)
-		return err
-	} else {
-		ControllerConfig = CConfig.Config{}
-
-		if yamlErr := yaml.Unmarshal(content, &ControllerConfig); yamlErr != nil {
-			logger.ControllerLog.Errorln("yaml parsing failed ", yamlErr)
-			return yamlErr
-		}
-	}
-	if ControllerConfig.Configuration == nil {
-		logger.ControllerLog.Errorln("Configuration Parsing Failed ", ControllerConfig.Configuration)
-		return nil
-	}
+	fmt.Printf("Controller configuration")
 
 	//set http client
 	if ControllerConfig.Info.HttpVersion == 2 {
