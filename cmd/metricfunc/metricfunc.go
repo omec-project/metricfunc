@@ -38,7 +38,6 @@ func main() {
 
 	//Read provided config
 	cfgFilePtr := flag.String("metrics", "../../config/config.yaml", "is a config file")
-	controllerCfgFilePtr := flag.String("cfg", "./config/config.yaml", "is a config file")
 	flag.Parse()
 	logger.AppLog.Infof("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
 
@@ -73,19 +72,21 @@ func main() {
 	//Start Prometheus client
 	go promclient.StartPrometheusClient(&cfg.Configuration.PrometheusServer)
 
-	//controller
-	rogueIpChan := make(chan controller.RogueIPs, 100)
-	controller.InitConfigFactory(*controllerCfgFilePtr)
-	onosClient := controller.OnosService{
-		OnosServiceUrl: "http://" + controller.ControllerConfig.Configuration.OnosApiServer.Addr + ":" +
-			strconv.Itoa(controller.ControllerConfig.Configuration.OnosApiServer.Port),
-		PollInterval: controller.ControllerConfig.Configuration.OnosApiServer.PollInterval,
+	if cfg.Configuration.ControllerFlag {
+		//controller
+		rogueIpChan := make(chan controller.RogueIPs, 100)
+		controller.InitControllerConfig(&cfg)
+		onosClient := controller.OnosService{
+			OnosServiceUrl: "http://" + cfg.Configuration.OnosApiServer.Addr + ":" +
+				strconv.Itoa(cfg.Configuration.OnosApiServer.Port),
+			PollInterval: cfg.Configuration.OnosApiServer.PollInterval,
+		}
+
+		controller.RogueChannel = rogueIpChan
+
+		go onosClient.GetRogueIPs(rogueIpChan)
+		go controller.RogueIPHandler(rogueIpChan)
 	}
-
-	controller.RogueChannel = rogueIpChan
-
-	go onosClient.GetRogueIPs(rogueIpChan)
-	go controller.RogueIPHandler(rogueIpChan)
 
 	//Go Pprofiling
 	debugProfPort := cfg.Configuration.DebugProfile.Port

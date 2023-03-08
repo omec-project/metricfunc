@@ -37,4 +37,13 @@ configuration:
   debugProfileServer:
     addr: "metricfunc"
     port: 5001
+  onosApiServer:
+    addr: "onosapp"
+    port: 9301
+  rocEndPoint:
+    addr: "aether-roc-umbrella-aether-roc-gui-v2-1-external.aether-roc.svc"
+    port: 31194
+  metricFuncEndPoint:
+    addr: "metricfunc.omec.svc"
+    port: 5001
 
