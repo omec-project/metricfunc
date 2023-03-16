@@ -78,7 +78,7 @@ func main() {
 		controller.InitControllerConfig(&cfg)
 		onosClient := controller.OnosService{
 			OnosServiceUrl: "http://" + cfg.Configuration.OnosApiServer.Addr + ":" +
-				strconv.Itoa(cfg.Configuration.OnosApiServer.Port),
+				strconv.Itoa(cfg.Configuration.OnosApiServer.Port) + cfg.Configuration.OnosApiServer.Path,
 			PollInterval: cfg.Configuration.OnosApiServer.PollInterval,
 		}
 

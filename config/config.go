@@ -35,6 +35,7 @@ type Configuration struct {
 type ServerAddr struct {
 	Addr         string `yaml:"addr,omitempty"` // IP used to run the server in the node.
 	Port         int    `yaml:"port,omitempty"`
+	Path         string `yaml:"path,omitempty"` // IP used to run the server in the node.
 	PollInterval int    `yaml:"pollInterval,omitempty"`
 }
 
