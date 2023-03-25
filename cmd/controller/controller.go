@@ -114,6 +114,10 @@ func getNextBackoffInterval(retry, interval uint) uint {
 }
 
 func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
+	bearer := "Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJCQlQ0SWpoNFdTdDRLMWtGZVNMWm9Lc0tLVFlmWjI1UGRNdHZBb0EwOXZjIn0.eyJleHAiOjE2Nzk4MTE1MjAsImlhdCI6MTY3OTcyNTEyMCwiYXV0aF90aW1lIjoxNjc5NzI0NjUyLCJqdGkiOiI4MWM4YTg1Mi0zMmQ3LTQ2ZGYtYjdjYy04YjVhMmM5ZDI4NGMiLCJpc3MiOiJodHRwczovL2tleWNsb2FrLnByb250b3Byb2plY3Qub3JnL2F1dGgvcmVhbG1zL21hc3RlciIsImF1ZCI6ImFldGhlci1yb2MtZ3VpIiwic3ViIjoiZmU0NWY1NjctMWMyOS00OTZhLTljODAtMDI1N2VlZjljZTIxIiwidHlwIjoiSUQiLCJhenAiOiJhZXRoZXItcm9jLWd1aSIsIm5vbmNlIjoiUjBJMFlXMTFla1ZPZVdkVmEwRkZZbk40ZURaU2FtWkpTVEJPU25KTFEyOVVZM2RZUld3dVMzUlhiMjUyIiwic2Vzc2lvbl9zdGF0ZSI6ImExODFmMDQyLTk4ZjMtNDExZS04NDkyLTAwMTA2YjI4YjM1YyIsImF0X2hhc2giOiJqdU50VjdwbDFPM1hWYkxDbF9sNGxRIiwiYWNyIjoiMCIsInNpZCI6ImExODFmMDQyLTk4ZjMtNDExZS04NDkyLTAwMTA2YjI4YjM1YyIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJuYW1lIjoiV29vam9vbmcgS2ltIiwiZ3JvdXBzIjpbIkFkbWluaXN0cmF0b3JzIiwiQWV0aGVyUk9DQWRtaW4iLCJJbnRlbFN0YWZmIl0sInByZWZlcnJlZF91c2VybmFtZSI6Indvb2pvb25nIiwiZ2l2ZW5fbmFtZSI6Ildvb2pvb25nIiwiZmFtaWx5X25hbWUiOiJLaW0iLCJlbWFpbCI6Indvb2pvb25nLmtpbUBpbnRlbC5jb20ifQ.NuEONvbUVjeHMwbebfrPSzw6FzhHqTeOwUl75KTVnw4mk5RNn3jc6EYAOmJayxdq3sj7I4nMs0dsxRkvJvK6bFLCzeftjwx8Bwcl3Q7mvW_wOl-bMdohNq-TwzUVOd3BDHyd6-2i46gtm1rozEzcCIEm2DwPLSLXTy5ZcowRZlrbFc7f5Ii3QiYwFv89C6NCFyA7nimfD4WfcMRy3vp-PNBSh7K0T2iU1h466kUxwXnhlVJel8kOpragwoHsSOWegSyHMyjcRZA6KyXlkuQc9bfBN4p0N1qSt0-XE126fwBpdQCQtMhFWVeLBEmK0nMSo1wieJHHW4489UShkeISvg"
+	// add authorization header to the req
+	req.Header.Add("Authorization", bearer)
+
 	rsp, err := client.Do(req)
 	if err != nil {
 		logger.ControllerLog.Errorf("http req send error [%v]", err.Error())
@@ -189,7 +193,8 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	}
 
 	for {
-		req.Header.Set("Content-Type", "application/json; charset=utf-8")
+		//req.Header.Set("Content-Type", "application/json; charset=utf-8")
+		req.SetBasicAuth("onos", "rocks")
 
 		rsp, httpErr := sendHttpReqMsg(req)
 		if httpErr != nil {
@@ -320,16 +325,16 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				rocDisableImsiApi := rocSiteApi + "/" + siteInfo.SiteId + "/sim-card/" + rocDisableSimCard.SimId
 				var val bool
 				rocDisableSimCard.Enable = &val
-				b, err := json.Marshal(&rocDisableSimCard)
+				b, _ := json.Marshal(&rocDisableSimCard)
 				reqMsgBody := bytes.NewBuffer(b)
 				fmt.Println("Rest API to disable IMSI: ", rocDisableImsiApi)
 				fmt.Println("Post Msg Body:", reqMsgBody)
 
-				req, err := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
+				req, _ := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
 				_, httpErr := sendHttpReqMsgWithoutRetry(req)
 				if httpErr != nil {
-					logger.ControllerLog.Errorf("Post Message [%v] returned error [%v] ", rocDisableImsiApi, err.Error())
+					logger.ControllerLog.Errorf("Post Message [%v] returned error [%v] ", rocDisableImsiApi, httpErr.Error())
 				}
 				return
 			}
