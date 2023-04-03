@@ -95,10 +95,6 @@ func InitControllerConfig(CConfig *config.Config) error {
 	logger.ControllerLog.Infoln("Address ", ControllerConfig.Configuration.RocEndPoint.Addr)
 	logger.ControllerLog.Infoln("Port ", ControllerConfig.Configuration.RocEndPoint.Port)
 
-	/*logger.ControllerLog.Infoln("Metric Func Endpoint:")
-	ControllerConfig.Configuration.MetricFuncEndPoint.Addr = strings.TrimSpace(ControllerConfig.Configuration.MetricFuncEndPoint.Addr)
-	logger.ControllerLog.Infoln("Address ", ControllerConfig.Configuration.MetricFuncEndPoint.Addr)
-	logger.ControllerLog.Infoln("Port ", ControllerConfig.Configuration.MetricFuncEndPoint.Port)*/
 	return nil
 }
 
@@ -128,7 +124,7 @@ func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 	} else {
 		logger.ControllerLog.Errorf("http rsp error [%v]", http.StatusText(rsp.StatusCode))
 		rsp.Body.Close()
-		return nil, fmt.Errorf("Error Response: %v", http.StatusText(rsp.StatusCode))
+		return nil, fmt.Errorf("error response: %v", http.StatusText(rsp.StatusCode))
 	}
 }
 
@@ -189,8 +185,6 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	}
 
 	for {
-		req.Header.Set("Content-Type", "application/json; charset=utf-8")
-
 		rsp, httpErr := sendHttpReqMsg(req)
 		if httpErr != nil {
 			logger.ControllerLog.Errorf("Get Message [%v] returned error [%v] ", onosServerApi, err.Error())
@@ -220,25 +214,6 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 		time.Sleep(time.Duration(onosClient.PollInterval) * time.Second)
 	}
 }
-
-/*func (metricClient *MetricFuncService) GetTargets(ipaddress string) (names []Targets) {
-	metricApi := metricClient.MetricServiceUrl + "/nmetric-func/v1/subscriber/"
-	req, err := http.NewRequest(http.MethodGet, rocTargetsApi, nil)
-	if err != nil {
-		fmt.Printf("An Error Occured %v", err)
-		return
-	}
-	rsp, httpErr := sendHttpReqMsg(req)
-	if httpErr != nil {
-		log.Printf("Get Message [%v] returned error [%v] ", rocTargetsApi, err.Error())
-	}
-
-	if rsp != nil && rsp.Body != nil {
-		json.NewDecoder(rsp.Body).Decode(&names)
-		log.Printf("Targets received from RoC: %v", names)
-	}
-	return
-}*/
 
 func (rocClient *RocService) GetTargets() (names []Targets) {
 	rocTargetsApi := rocClient.RocServiceUrl + "/aether-roc-api/targets"
@@ -320,16 +295,16 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				rocDisableImsiApi := rocSiteApi + "/" + siteInfo.SiteId + "/sim-card/" + rocDisableSimCard.SimId
 				var val bool
 				rocDisableSimCard.Enable = &val
-				b, err := json.Marshal(&rocDisableSimCard)
+				b, _ := json.Marshal(&rocDisableSimCard)
 				reqMsgBody := bytes.NewBuffer(b)
-				fmt.Println("Rest API to disable IMSI: ", rocDisableImsiApi)
-				fmt.Println("Post Msg Body:", reqMsgBody)
+				logger.ControllerLog.Debugln("Rest API to disable IMSI: ", rocDisableImsiApi)
+				logger.ControllerLog.Debugln("Post Msg Body:", reqMsgBody)
 
-				req, err := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
+				req, _ := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
 				_, httpErr := sendHttpReqMsgWithoutRetry(req)
 				if httpErr != nil {
-					logger.ControllerLog.Errorf("Post Message [%v] returned error [%v] ", rocDisableImsiApi, err.Error())
+					logger.ControllerLog.Errorf("Post Message [%v] returned error [%v] ", rocDisableImsiApi, httpErr.Error())
 				}
 				return
 			}
@@ -343,9 +318,6 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 	rocClient := RocService{
 		RocServiceUrl: "http://" + ControllerConfig.Configuration.RocEndPoint.Addr + ":" + strconv.Itoa(ControllerConfig.Configuration.RocEndPoint.Port),
 	}
-	/*metricFuncClient := MetricService{
-		MetricServiceUrl: "http://" + ControllerConfig.Configuration.MetricFuncEndPoint.Addr + ":" + strconv.Itoa(ControllerConfig.Configuration.MetricFuncEndPoint.Port),
-	}*/
 
 	for rogueIPs := range rogueIPChannel {
 
@@ -364,22 +336,8 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				logger.ControllerLog.Errorln("GetTargets returns nil")
 			} else {
 				// get siteinfo from ROC
-				//rocClient.DisableSimcard(targets, "208930100007490")
 				rocClient.DisableSimcard(targets, subscriberInfo.Imsi)
 			}
 		}
 	}
 }
-
-/*func main() {
-	rogueIpChan := make(chan RogueIPs, 100)
-	InitConfigFactory()
-	onosClient := OnosService{
-		OnosServiceUrl: "http://" + ControllerConfig.Configuration.OnosApiServer.Addr + ":" +
-			strconv.Itoa(ControllerConfig.Configuration.OnosApiServer.Port),
-	}
-	go onosClient.GetRogueIPs(rogueIpChan)
-	go RogueIPHandler(rogueIpChan)
-
-	select {}
-}*/
