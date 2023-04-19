@@ -26,7 +26,7 @@ type Configuration struct {
 	ApiServer          ServerAddr       `yaml:"apiServer,omitempty"`
 	PrometheusServer   ServerAddr       `yaml:"prometheusServer,omitempty"`
 	DebugProfile       ServerAddr       `yaml:"debugProfileServer,omitempty"`
-	OnosApiServer      ServerAddr       `yaml:"onosApiServer,omitempty"`
+	UserAppApiServer   ServerAddr       `yaml:"userAppApiServer,omitempty"`
 	RocEndPoint        ServerAddr       `yaml:"rocEndPoint,omitempty"`
 	MetricFuncEndPoint ServerAddr       `yaml:"metricFuncEndPoint,omitempty"`
 	ControllerFlag     bool             `yaml:"controllerFlag,omitempty"`

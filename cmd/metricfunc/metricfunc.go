@@ -76,15 +76,15 @@ func main() {
 		//controller
 		rogueIpChan := make(chan controller.RogueIPs, 100)
 		controller.InitControllerConfig(&cfg)
-		onosClient := controller.OnosService{
-			OnosServiceUrl: "http://" + cfg.Configuration.OnosApiServer.Addr + ":" +
-				strconv.Itoa(cfg.Configuration.OnosApiServer.Port) + cfg.Configuration.OnosApiServer.Path,
-			PollInterval: cfg.Configuration.OnosApiServer.PollInterval,
+		userAppClient := controller.UserAppService{
+			UserAppServiceUrl: "http://" + cfg.Configuration.UserAppApiServer.Addr + ":" +
+				strconv.Itoa(cfg.Configuration.UserAppApiServer.Port) + cfg.Configuration.UserAppApiServer.Path,
+			PollInterval: cfg.Configuration.UserAppApiServer.PollInterval,
 		}
 
 		controller.RogueChannel = rogueIpChan
 
-		go onosClient.GetRogueIPs(rogueIpChan)
+		go userAppClient.GetRogueIPs(rogueIpChan)
 		go controller.RogueIPHandler(rogueIpChan)
 	}
 

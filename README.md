@@ -28,6 +28,10 @@ SPDX-License-Identifier: Apache-2.0
 4. GetNfServiceStats (/nmetric-func/v1/nfServiceStatsSummary/<AMF/SMF>)
 5. GetNfServiceStatsAll (/nmetric-func/v1/nfServiceStats/all)
 
+
+
 For more details about the Grafana Dashboard, please refer- https://docs.aetherproject.org/master/developer/aiabhw5g.html#enable-monitoring
+
+For more details about the Metric-Function, please refer- https://docs.sd-core.opennetworking.org/master/design/design-metricfunc.html
 
   
