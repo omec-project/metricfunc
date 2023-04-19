@@ -36,10 +36,10 @@ type Targets struct {
 type RogueIPs struct {
 	IpAddresses []string `yaml:"ipaddresses,omitempty" json:"ipaddresses,omitempty"`
 }
-type OnosService struct {
-	OnosServiceUrl string   `yaml:"onosServiceUrl,omitempty" json:"onosServiceUrl,omitempty"`
-	PollInterval   int      `yaml:"pollInterval,omitempty" json:"pollInterval,omitempty"`
-	RogueIPs       RogueIPs `yaml:"rogueips,omitempty" json:"rogueips,omitempty"`
+type UserAppService struct {
+	UserAppServiceUrl string   `yaml:"userAppServiceUrl,omitempty" json:"userAppServiceUrl,omitempty"`
+	PollInterval      int      `yaml:"pollInterval,omitempty" json:"pollInterval,omitempty"`
+	RogueIPs          RogueIPs `yaml:"rogueips,omitempty" json:"rogueips,omitempty"`
 }
 
 type RocService struct {
@@ -80,15 +80,15 @@ func InitControllerConfig(CConfig *config.Config) error {
 		}
 	}
 
-	if ControllerConfig.Configuration.OnosApiServer.PollInterval == 0 {
-		ControllerConfig.Configuration.OnosApiServer.PollInterval = 30
+	if ControllerConfig.Configuration.UserAppApiServer.PollInterval == 0 {
+		ControllerConfig.Configuration.UserAppApiServer.PollInterval = 30
 	}
 
 	logger.ControllerLog.Infoln("Ons Api Server Endpoint:")
-	ControllerConfig.Configuration.OnosApiServer.Addr = strings.TrimSpace(ControllerConfig.Configuration.OnosApiServer.Addr)
-	logger.ControllerLog.Infoln("Address ", ControllerConfig.Configuration.OnosApiServer.Addr)
-	logger.ControllerLog.Infoln("Port ", ControllerConfig.Configuration.OnosApiServer.Port)
-	logger.ControllerLog.Infoln("PollInterval ", ControllerConfig.Configuration.OnosApiServer.PollInterval)
+	ControllerConfig.Configuration.UserAppApiServer.Addr = strings.TrimSpace(ControllerConfig.Configuration.UserAppApiServer.Addr)
+	logger.ControllerLog.Infoln("Address ", ControllerConfig.Configuration.UserAppApiServer.Addr)
+	logger.ControllerLog.Infoln("Port ", ControllerConfig.Configuration.UserAppApiServer.Port)
+	logger.ControllerLog.Infoln("PollInterval ", ControllerConfig.Configuration.UserAppApiServer.PollInterval)
 
 	logger.ControllerLog.Infoln("Roc Endpoint:")
 	ControllerConfig.Configuration.RocEndPoint.Addr = strings.TrimSpace(ControllerConfig.Configuration.RocEndPoint.Addr)
@@ -166,19 +166,19 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 func validateIPs(ips RogueIPs) (validIps RogueIPs) {
 	for _, ip := range ips.IpAddresses {
 		if net.ParseIP(ip) == nil {
-			logger.ControllerLog.Errorf("OnosApp response received with IP Address: %s - Invalid\n", ip)
+			logger.ControllerLog.Errorf("UserAppApp response received with IP Address: %s - Invalid\n", ip)
 			continue
 		}
 		validIps.IpAddresses = append(validIps.IpAddresses, ip)
 	}
-	logger.ControllerLog.Debugf("RogueIPs [%v] received from OnosApp", validIps.IpAddresses)
+	logger.ControllerLog.Debugf("RogueIPs [%v] received from UserAppApp", validIps.IpAddresses)
 	return validIps
 }
-func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
+func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 
-	onosServerApi := onosClient.OnosServiceUrl
-	logger.ControllerLog.Infoln("OnosApp Url: ", onosServerApi)
-	req, err := http.NewRequest(http.MethodGet, onosServerApi, nil)
+	userAppServerApi := userAppClient.UserAppServiceUrl
+	logger.ControllerLog.Infoln("UserAppApp Url: ", userAppServerApi)
+	req, err := http.NewRequest(http.MethodGet, userAppServerApi, nil)
 	if err != nil {
 		logger.ControllerLog.Errorln("An Error Occured ", err)
 		return
@@ -187,7 +187,7 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	for {
 		rsp, httpErr := sendHttpReqMsg(req)
 		if httpErr != nil {
-			logger.ControllerLog.Errorf("Get Message [%v] returned error [%v] ", onosServerApi, err.Error())
+			logger.ControllerLog.Errorf("Get Message [%v] returned error [%v] ", userAppServerApi, err.Error())
 			time.Sleep(10 * time.Second)
 			continue
 		}
@@ -197,9 +197,9 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 			if rsp.Body != nil {
 				err := json.NewDecoder(rsp.Body).Decode(&rogueIPs)
 				if err != nil {
-					logger.ControllerLog.Errorln("OnosApp response body decode failed: ", err)
+					logger.ControllerLog.Errorln("UserAppApp response body decode failed: ", err)
 				} else {
-					logger.ControllerLog.Infoln("received rogueIPs from Onos App: ", rogueIPs)
+					logger.ControllerLog.Infoln("received rogueIPs from UserApp App: ", rogueIPs)
 					ips := validateIPs(rogueIPs)
 					if len(ips.IpAddresses) > 0 {
 						//writing rogueIPs into channel
@@ -207,11 +207,11 @@ func (onosClient *OnosService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 					}
 				}
 			} else {
-				logger.ControllerLog.Infoln("Http Response Body from OnosApp is empty")
+				logger.ControllerLog.Infoln("Http Response Body from UserAppApp is empty")
 			}
 		}
 
-		time.Sleep(time.Duration(onosClient.PollInterval) * time.Second)
+		time.Sleep(time.Duration(userAppClient.PollInterval) * time.Second)
 	}
 }
 
