@@ -43,12 +43,12 @@ func main() {
 
 	cfg := config.Config{}
 	if content, err := ioutil.ReadFile(*cfgFilePtr); err != nil {
-		logger.AppLog.Errorf("Readfile failed called ", err)
+		logger.AppLog.Errorln("Readfile failed called ", err)
 		return
 	} else {
 
 		if yamlErr := yaml.Unmarshal(content, &cfg); yamlErr != nil {
-			logger.AppLog.Errorf("yaml parsing failed ", yamlErr)
+			logger.AppLog.Errorln("yaml parsing failed ", yamlErr)
 			return
 		}
 	}

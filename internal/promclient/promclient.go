@@ -110,7 +110,7 @@ func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 
 //SetSessStats maintains Session level stats
 func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
-	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v ]", count)
+	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v ]", count, smfIp, slice, dnn, upf)
 	promStats.smfSessions.WithLabelValues("", "", "", "").Set(float64(count))
 }
 
