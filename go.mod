@@ -2,8 +2,6 @@ module github.com/omec-project/metricfunc
 
 go 1.21
 
-replace github.com/omec-project/metricfunc => ./
-
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/gin-gonic/gin v1.9.1
