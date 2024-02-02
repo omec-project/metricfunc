@@ -328,7 +328,7 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				logger.ControllerLog.Errorln("Subscriber details doesn't exist with imsi ", err)
 				continue
 			}
-			logger.ControllerLog.Infoln("Subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
+			logger.ControllerLog.Infof("Subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
 			//get enterprises or targets from ROC
 			targets := rocClient.GetTargets()
 
