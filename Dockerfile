@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-FROM golang:1.21.3-bookworm AS builder
+FROM golang:1.21.6-bookworm AS builder
 
 LABEL maintainer="ONF <omec-dev@opennetworking.org>"
 
@@ -14,7 +14,7 @@ RUN cd $GOPATH/src && mkdir -p metricfunc
 COPY . $GOPATH/src/metricfunc
 RUN cd $GOPATH/src/metricfunc/cmd/metricfunc && CGO_ENABLED=0 go build -mod=mod
 
-FROM alpine:3.16 as metricfunc
+FROM alpine:3.19 as metricfunc
 
 ARG DEBUG_TOOLS
 # Install debug tools ~ 100MB (if DEBUG_TOOLS is set to true)
