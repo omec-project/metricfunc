@@ -48,7 +48,7 @@ jobs:
       - name: FOSSA scan
         uses: fossas/fossa-action@main
         with:
-          api-key: ${{secrets.fossaApiKey}}
+          api-key: ${{secrets.FOSSA_OMEC_ORG_PO}}
 
   unit-tests:
     runs-on: ubuntu-latest
