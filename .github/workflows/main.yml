@@ -45,7 +45,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: fossas/fossa-action@main
+      - name: FOSSA scan
+        uses: fossas/fossa-action@main
         with:
           api-key: ${{ secrets.FOSSA_OMEC_ORG_PO }}
 
