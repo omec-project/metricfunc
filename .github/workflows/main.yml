@@ -42,13 +42,15 @@ jobs:
 
   fossa-check:
     runs-on: ubuntu-latest
+    env:
+      FOSSA_OMEC_ORG_PO: ${{ secrets.FOSSA_OMEC_ORG_PO }}
     steps:
       - uses: actions/checkout@v4
 
       - name: FOSSA scan
         uses: fossas/fossa-action@main
         with:
-          api-key: ${{ secrets.FOSSA_OMEC_ORG_PO }}
+          api-key: ${{ env.FOSSA_OMEC_ORG_PO }}
 
   unit-tests:
     runs-on: ubuntu-latest
