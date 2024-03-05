@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/omec-project/metricfunc/cmd/controller"
+	"github.com/omec-project/metricfunc/controller"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
 	"github.com/omec-project/openapi"
