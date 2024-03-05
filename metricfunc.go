@@ -19,8 +19,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/omec-project/metricfunc/api/apiserver"
-	"github.com/omec-project/metricfunc/cmd/controller"
 	"github.com/omec-project/metricfunc/config"
+	"github.com/omec-project/metricfunc/controller"
 	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/internal/reader"
 	"github.com/omec-project/metricfunc/logger"

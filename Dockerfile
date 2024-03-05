@@ -5,27 +5,29 @@
 
 FROM golang:1.22.0-bookworm AS builder
 
-LABEL maintainer="ONF <omec-dev@opennetworking.org>"
+LABEL maintainer="Aether SD-Core <dev@aetherproject.org>"
 
-RUN apt-get update && apt-get -y install vim
-
-
-RUN cd $GOPATH/src && mkdir -p metricfunc
-COPY . $GOPATH/src/metricfunc
-RUN cd $GOPATH/src/metricfunc/cmd/metricfunc && CGO_ENABLED=0 go build -mod=mod
+WORKDIR $GOPATH/src/metricfunc
+COPY . .
+RUN make all
 
 FROM alpine:3.19 as metricfunc
 
+LABEL description="Aether open source 5G Core Network" \
+    version="Stage 3"
+
 ARG DEBUG_TOOLS
-# Install debug tools ~ 100MB (if DEBUG_TOOLS is set to true)
-RUN apk update && apk add -U vim strace net-tools curl netcat-openbsd bind-tools bash tcpdump 
+
+# Install debug tools ~ 50MB (if DEBUG_TOOLS is set to true)
+RUN if [ "$DEBUG_TOOLS" = "true" ]; then \
+        apk update && apk add --no-cache -U vim strace net-tools curl netcat-openbsd bind-tools tcpdump; \
+        fi
 
 # Set working dir
-WORKDIR /metricfunc
-RUN mkdir -p /metricfunc/bin
+WORKDIR /metricfunc/bin
 
 # Copy executable
-COPY --from=builder /go/src/metricfunc/cmd/metricfunc/metricfunc /metricfunc/bin/
+COPY --from=builder /go/src/metricfunc/bin/* .
 
 #Image default directory
 WORKDIR /metricfunc
