@@ -5,9 +5,9 @@ go 1.21
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/gin-gonic/gin v1.9.1
-	github.com/omec-project/http2_util v1.1.0
-	github.com/omec-project/logger_util v1.1.0
-	github.com/omec-project/openapi v1.1.0
+	github.com/omec-project/http2_util v1.2.0
+	github.com/omec-project/logger_util v1.2.0
+	github.com/omec-project/openapi v1.2.0
 	github.com/prometheus/client_golang v1.19.0
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sirupsen/logrus v1.9.3
@@ -33,6 +33,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
