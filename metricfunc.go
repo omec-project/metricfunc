@@ -7,16 +7,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"strconv"
-
-	_ "net/http/pprof"
-
-	"github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 
 	"github.com/omec-project/metricfunc/api/apiserver"
 	"github.com/omec-project/metricfunc/config"
@@ -24,6 +19,8 @@ import (
 	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/internal/reader"
 	"github.com/omec-project/metricfunc/logger"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 var PodIp string
@@ -40,7 +37,7 @@ func main() {
 	logger.AppLog.Infof("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
 
 	cfg := config.Config{}
-	if content, err := ioutil.ReadFile(*cfgFilePtr); err != nil {
+	if content, err := os.ReadFile(*cfgFilePtr); err != nil {
 		logger.AppLog.Errorln("Readfile failed called ", err)
 		return
 	} else {

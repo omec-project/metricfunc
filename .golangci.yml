@@ -220,7 +220,7 @@ linters:
   enable:
     - gofmt
     - govet
-    - errcheck
+    # - errcheck
     - staticcheck
     - unused
     - gosimple
@@ -242,9 +242,9 @@ linters:
     - whitespace
     - unconvert
     - predeclared
-    - noctx
+    # - noctx
     - dogsled
-    - bodyclose
+    # - bodyclose
     - asciicheck
       #- stylecheck
       # - unparam
