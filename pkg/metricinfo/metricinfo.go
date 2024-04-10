@@ -6,10 +6,10 @@ package metricinfo
 
 type CoreSubscriber struct {
 	Version     int    `json:"version,omitempty"`
-	Imsi        string `json:"imsi,omitempty"` //key
+	Imsi        string `json:"imsi,omitempty"` // key
 	SmfId       string `json:"smfId,omitempty"`
 	SmfIp       string `json:"smfIp,omitempty"`
-	SmfSubState string `json:"smfSubState,omitempty"` //Connected, Idle, DisConnected
+	SmfSubState string `json:"smfSubState,omitempty"` // Connected, Idle, DisConnected
 	IPAddress   string `json:"ipaddress,omitempty"`
 	Dnn         string `json:"dnn,omitempty"`
 	Slice       string `json:"slice,omitempty"`
@@ -22,7 +22,7 @@ type CoreSubscriber struct {
 	Tmsi        int32  `json:"tmsi,omitempty"`
 	AmfNgapId   int64  `json:"amfngapId,omitempty"`
 	RanNgapId   int64  `json:"ranngapId,omitempty"`
-	AmfSubState string `json:"amfSubState,omitempty"` //RegisteredC, RegisteredI, DeRegistered, Deleted
+	AmfSubState string `json:"amfSubState,omitempty"` // RegisteredC, RegisteredI, DeRegistered, Deleted
 	GnbId       string `json:"gnbid,omitempty"`
 	TacId       string `json:"tacid,omitempty"`
 	AmfIp       string `json:"amfIp,omitempty"`
@@ -90,7 +90,7 @@ type CoreSubscriberData struct {
 	Operation  SubscriberOp   `json:"subsOp,omitempty"`
 }
 
-//Sent by NFs(Producers) and received by Metric Function
+// Sent by NFs(Producers) and received by Metric Function
 type MetricEvent struct {
 	EventType      CoreEventType      `json:"eventType,omitempty"`
 	SubscriberData CoreSubscriberData `json:"subscriberData,omitempty"`

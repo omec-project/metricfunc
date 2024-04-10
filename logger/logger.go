@@ -39,7 +39,6 @@ func init() {
 	PromLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "Prometheus"})
 	AppLog = log.WithFields(logrus.Fields{"component": "MetricFunc", "category": "App"})
 	ControllerLog = log.WithFields(logrus.Fields{"component": "Controller", "category": "App"})
-
 }
 
 func SetLogLevel(level logrus.Level) {

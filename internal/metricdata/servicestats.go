@@ -15,7 +15,7 @@ import (
 
 type nfServiceStats struct {
 	svcStatLock sync.RWMutex
-	svcStats    map[string]map[string]uint64 //Nf IP is key
+	svcStats    map[string]map[string]uint64 // Nf IP is key
 }
 
 func HandleServiceEvent(msgType *metricinfo.CoreMsgType, sourceNf metricinfo.NfType) {
@@ -30,11 +30,10 @@ func HandleServiceEvent(msgType *metricinfo.CoreMsgType, sourceNf metricinfo.NfT
 }
 
 func handleSmfServiceEvent(msgType *metricinfo.CoreMsgType) {
-
 	metricData.SmfSvcStats.svcStatLock.Lock()
 	defer metricData.SmfSvcStats.svcStatLock.Unlock()
 
-	//Check if bucket already exist
+	// Check if bucket already exist
 	if stats, ok := metricData.SmfSvcStats.svcStats[msgType.SourceNfId]; ok {
 		stats[msgType.MsgType] = stats[msgType.MsgType] + 1
 		promclient.IncrementSmfSvcStats(msgType.SourceNfId, msgType.MsgType)
@@ -50,11 +49,10 @@ func handleSmfServiceEvent(msgType *metricinfo.CoreMsgType) {
 }
 
 func handleAmfServiceEvent(msgType *metricinfo.CoreMsgType) {
-
 	metricData.AmfSvcStats.svcStatLock.Lock()
 	defer metricData.AmfSvcStats.svcStatLock.Unlock()
 
-	//Check if bucket already exist
+	// Check if bucket already exist
 	if stats, ok := metricData.AmfSvcStats.svcStats[msgType.SourceNfId]; ok {
 		stats[msgType.MsgType] = stats[msgType.MsgType] + 1
 		promclient.IncrementAmfSvcStats(msgType.SourceNfId, msgType.MsgType)
@@ -70,7 +68,6 @@ func handleAmfServiceEvent(msgType *metricinfo.CoreMsgType) {
 }
 
 func GetNfServiceStatsDetail(nfType string) (map[string](map[string]uint64), error) {
-
 	switch nfType {
 	case "smf":
 		return GetSmfServiceStatDetail()
@@ -79,11 +76,9 @@ func GetNfServiceStatsDetail(nfType string) (map[string](map[string]uint64), err
 	default:
 		return nil, fmt.Errorf("no statistics available for nf type [%v] ", nfType)
 	}
-
 }
 
 func GetSmfServiceStatDetail() (map[string](map[string]uint64), error) {
-
 	metricData.SmfSvcStats.svcStatLock.RLock()
 	defer metricData.SmfSvcStats.svcStatLock.RUnlock()
 
@@ -91,7 +86,6 @@ func GetSmfServiceStatDetail() (map[string](map[string]uint64), error) {
 }
 
 func GetAmfServiceStatDetail() (map[string](map[string]uint64), error) {
-
 	metricData.SmfSvcStats.svcStatLock.RLock()
 	defer metricData.SmfSvcStats.svcStatLock.RUnlock()
 

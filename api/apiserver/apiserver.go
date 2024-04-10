@@ -14,7 +14,6 @@ import (
 )
 
 func init() {
-
 }
 
 func StartApiServer(cfg *config.ServerAddr) {
