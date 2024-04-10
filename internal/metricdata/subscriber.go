@@ -13,9 +13,7 @@ import (
 	"github.com/omec-project/metricfunc/pkg/metricinfo"
 )
 
-var (
-	smContextActive uint64
-)
+var smContextActive uint64
 
 func incSMContextActive() uint64 {
 	atomic.AddUint64(&smContextActive, 1)
@@ -63,14 +61,13 @@ func updateSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	metricData.SubLock.Lock()
 	defer metricData.SubLock.Unlock()
 	if s, ok := metricData.Subscribers[sub.Imsi]; ok {
-
 		deletePrometheusCoreSubData(s)
 
 		if sourceNf == metricinfo.NfTypeSmf {
-			//SMF specific fields
+			// SMF specific fields
 			fillSmfSubsriberData(sub, s)
 		} else if sourceNf == metricinfo.NfTypeAmf {
-			//AMF specific fields
+			// AMF specific fields
 			fillAmfSubsriberData(sub, s)
 		}
 		pushPrometheusCoreSubData(s)
@@ -91,11 +88,11 @@ func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	s.SmfSubState = sub.SmfSubState
 	s.AmfSubState = sub.AmfSubState
 
-	//register disconnect state
+	// register disconnect state
 	pushPrometheusCoreSubData(s)
 	delete(metricData.Subscribers, imsi)
 
-	//register subscriber delete
+	// register subscriber delete
 	deletePrometheusCoreSubData(s)
 
 	logger.CacheLog.Debugf("deleting subscriber with imsi [%s] ", imsi)
@@ -136,80 +133,78 @@ func GetSubscriberAll() []string {
 	return imsis
 }
 
-//Pushing to prometheus client module
+// Pushing to prometheus client module
 func pushPrometheusCoreSubData(sub *metricinfo.CoreSubscriber) {
 	promclient.PushCoreSubData(sub.Imsi, sub.IPAddress, sub.SmfSubState, sub.SmfIp, sub.Dnn, sub.Slice, sub.UpfName)
 }
 
-//Pushing to prometheus client module
+// Pushing to prometheus client module
 func deletePrometheusCoreSubData(sub *metricinfo.CoreSubscriber) {
 	promclient.DeleteCoreSubData(sub.Imsi, sub.IPAddress, sub.SmfSubState, sub.SmfIp, sub.Dnn, sub.Slice, sub.UpfName)
 }
 
 func fillSmfSubsriberData(s, d *metricinfo.CoreSubscriber) {
-
-	//ip-addr
+	// ip-addr
 	if s.IPAddress != "" {
 		d.IPAddress = s.IPAddress
 	}
 
-	//slice
+	// slice
 	if s.Slice != "" {
 		d.Slice = s.Slice
 	}
 
-	//dnn
+	// dnn
 	if s.Dnn != "" {
 		d.Dnn = s.Dnn
 	}
 
-	//upf name
+	// upf name
 	if s.UpfName != "" {
 		d.UpfName = s.UpfName
 	}
 
-	//upf ip
+	// upf ip
 	if s.UpfAddr != "" {
 		d.UpfAddr = s.UpfAddr
 	}
 
-	//always overwrite subscriber state
+	// always overwrite subscriber state
 	d.SmfSubState = s.SmfSubState
 }
 
 func fillAmfSubsriberData(s, d *metricinfo.CoreSubscriber) {
-
-	//AmfId
+	// AmfId
 	if s.AmfId != "" {
 		d.AmfId = s.AmfId
 	}
 
-	//Guti
+	// Guti
 	if s.Guti != "" {
 		d.Guti = s.Guti
 	}
 
-	//TMSI
+	// TMSI
 	if s.Tmsi != 0 {
 		d.Tmsi = s.Tmsi
 	}
 
-	//Amf Ngap Id
+	// Amf Ngap Id
 	if s.AmfNgapId != 0 {
 		d.AmfNgapId = s.AmfNgapId
 	}
 
-	//Ran Ngap Id
+	// Ran Ngap Id
 	if s.RanNgapId != 0 {
 		d.RanNgapId = s.RanNgapId
 	}
 
-	//GnbId
+	// GnbId
 	if s.GnbId != "" {
 		d.GnbId = s.GnbId
 	}
 
-	//TacId
+	// TacId
 	if s.TacId != "" {
 		d.TacId = s.TacId
 	}
@@ -219,6 +214,6 @@ func fillAmfSubsriberData(s, d *metricinfo.CoreSubscriber) {
 		d.AmfIp = s.AmfIp
 	}
 
-	//always overwrite subscriber state
+	// always overwrite subscriber state
 	d.AmfSubState = s.AmfSubState
 }

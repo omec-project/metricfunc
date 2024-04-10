@@ -9,10 +9,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"strconv"
 
-	"net/http"
 	_ "net/http/pprof"
 
 	"github.com/sirupsen/logrus"
@@ -31,12 +31,10 @@ var PodIp string
 func init() {
 	podIpStr := os.Getenv("POD_IP")
 	PodIp = net.ParseIP(podIpStr).To4().String()
-
 }
 
 func main() {
-
-	//Read provided config
+	// Read provided config
 	cfgFilePtr := flag.String("metrics", "../../config/config.yaml", "is a config file")
 	flag.Parse()
 	logger.AppLog.Infof("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
@@ -46,7 +44,6 @@ func main() {
 		logger.AppLog.Errorln("Readfile failed called ", err)
 		return
 	} else {
-
 		if yamlErr := yaml.Unmarshal(content, &cfg); yamlErr != nil {
 			logger.AppLog.Errorln("yaml parsing failed ", yamlErr)
 			return
@@ -57,23 +54,23 @@ func main() {
 	cfg.Configuration.ApiServer.Addr = PodIp
 	cfg.Configuration.PrometheusServer.Addr = PodIp
 
-	//set log level
+	// set log level
 	if level, err := logrus.ParseLevel(cfg.Logger.LogLevel); err == nil {
 		logger.AppLog.Infof("setting log level [%v]", cfg.Logger.LogLevel)
 		logger.SetLogLevel(level)
 	}
 
-	//Start Kafka Event Reader
+	// Start Kafka Event Reader
 	reader.StartKafkaReader(cfg.Configuration)
 
-	//Start API Server
+	// Start API Server
 	go apiserver.StartApiServer(&cfg.Configuration.ApiServer)
 
-	//Start Prometheus client
+	// Start Prometheus client
 	go promclient.StartPrometheusClient(&cfg.Configuration.PrometheusServer)
 
 	if cfg.Configuration.ControllerFlag {
-		//controller
+		// controller
 		rogueIpChan := make(chan controller.RogueIPs, 100)
 		controller.InitControllerConfig(&cfg)
 		userAppClient := controller.UserAppService{
@@ -88,7 +85,7 @@ func main() {
 		go controller.RogueIPHandler(rogueIpChan)
 	}
 
-	//Go Pprofiling
+	// Go Pprofiling
 	debugProfPort := cfg.Configuration.DebugProfile.Port
 	if debugProfPort != 0 {
 		logger.AppLog.Infof("pprofile exposed on port [%v] ", debugProfPort)
@@ -98,6 +95,6 @@ func main() {
 		}()
 	}
 
-	//Start MongoDB
+	// Start MongoDB
 	select {}
 }

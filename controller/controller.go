@@ -24,10 +24,12 @@ import (
 	"golang.org/x/net/http2"
 )
 
-var ControllerConfig config.Config
-var client *http.Client
+var (
+	ControllerConfig config.Config
+	client           *http.Client
+)
 
-//creating for testing
+// creating for testing
 var RogueChannel chan RogueIPs
 
 type Targets struct {
@@ -60,10 +62,10 @@ type SiteInfo struct {
 
 func InitControllerConfig(CConfig *config.Config) error {
 	ControllerConfig = *CConfig
-	//Read provided config
+	// Read provided config
 	fmt.Printf("Controller configuration")
 
-	//set http client
+	// set http client
 	if ControllerConfig.Info.HttpVersion == 2 {
 		client = &http.Client{
 			Transport: &http2.Transport{
@@ -129,7 +131,7 @@ func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 }
 
 func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
-	//Keep sending request to Http server until response is success
+	// Keep sending request to Http server until response is success
 	var retries uint = 0
 	var body []byte
 	if req.Body != nil {
@@ -174,8 +176,8 @@ func validateIPs(ips RogueIPs) (validIps RogueIPs) {
 	logger.ControllerLog.Debugf("RogueIPs [%v] received from UserAppApp", validIps.IpAddresses)
 	return validIps
 }
-func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 
+func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	userAppServerApi := userAppClient.UserAppServiceUrl
 	logger.ControllerLog.Infoln("UserAppApp Url: ", userAppServerApi)
 	req, err := http.NewRequest(http.MethodGet, userAppServerApi, nil)
@@ -202,7 +204,7 @@ func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 					logger.ControllerLog.Infoln("received rogueIPs from UserApp App: ", rogueIPs)
 					ips := validateIPs(rogueIPs)
 					if len(ips.IpAddresses) > 0 {
-						//writing rogueIPs into channel
+						// writing rogueIPs into channel
 						rogueIPChannel <- ips
 					}
 				}
@@ -320,7 +322,6 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 	}
 
 	for rogueIPs := range rogueIPChannel {
-
 		for _, ipaddr := range rogueIPs.IpAddresses {
 			// get IP to imsi mapping from metricfunc
 			subscriberInfo, err := metricdata.GetSubscriberImsiFromIpAddr(ipaddr)
@@ -329,7 +330,7 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				continue
 			}
 			logger.ControllerLog.Infof("Subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
-			//get enterprises or targets from ROC
+			// get enterprises or targets from ROC
 			targets := rocClient.GetTargets()
 
 			if len(targets) == 0 {

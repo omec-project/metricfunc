@@ -19,8 +19,7 @@ import (
 )
 
 func StartKafkaReader(cfg *config.Configuration) {
-
-	//Start Kafka Event Reader
+	// Start Kafka Event Reader
 	for _, nfStream := range cfg.NfStreams {
 		r := kafka.NewReader(kafka.ReaderConfig{
 			Brokers: makeUrlsFromUriPort(nfStream.Urls),
@@ -32,7 +31,7 @@ func StartKafkaReader(cfg *config.Configuration) {
 	}
 }
 
-//make urls from config uri and port
+// make urls from config uri and port
 func makeUrlsFromUriPort(uriPortCfg []config.Urls) []string {
 	var urls []string
 	for _, uriPort := range uriPortCfg {
@@ -43,7 +42,6 @@ func makeUrlsFromUriPort(uriPortCfg []config.Urls) []string {
 }
 
 func getSourceNfType(r *kafka.Reader) metricinfo.NfType {
-
 	topic := r.Config().Topic
 	switch topic {
 	case "sdcore-data-source-smf":
@@ -71,7 +69,7 @@ func reader(r *kafka.Reader) {
 		logger.AppLog.Debugf("stream [%v] message %s ", r.Config().Topic, string(msg.Value))
 
 		var metricEvent metricinfo.MetricEvent
-		//Unmarshal the msg
+		// Unmarshal the msg
 		if err := json.Unmarshal(msg.Value, &metricEvent); err != nil {
 			logger.AppLog.Fatalf("unmarshal smf event error %v ", err.Error())
 		}
