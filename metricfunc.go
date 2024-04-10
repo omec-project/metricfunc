@@ -69,7 +69,11 @@ func main() {
 	if cfg.Configuration.ControllerFlag {
 		// controller
 		rogueIpChan := make(chan controller.RogueIPs, 100)
-		controller.InitControllerConfig(&cfg)
+		err := controller.InitControllerConfig(&cfg)
+		if err != nil {
+			logger.AppLog.Warnln("failed to initialize controller configuration")
+		}
+
 		userAppClient := controller.UserAppService{
 			UserAppServiceUrl: "http://" + cfg.Configuration.UserAppApiServer.Addr + ":" +
 				strconv.Itoa(cfg.Configuration.UserAppApiServer.Port) + cfg.Configuration.UserAppApiServer.Path,
@@ -88,7 +92,10 @@ func main() {
 		logger.AppLog.Infof("pprofile exposed on port [%v] ", debugProfPort)
 		httpAddr := fmt.Sprintf(":%d", debugProfPort)
 		go func() {
-			http.ListenAndServe(httpAddr, nil)
+			err := http.ListenAndServe(httpAddr, nil)
+			if err != nil {
+				logger.AppLog.Warnf("failed to listen TCP connection on address %v", httpAddr)
+			}
 		}()
 	}
 

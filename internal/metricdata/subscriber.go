@@ -28,11 +28,17 @@ func decSMContextActive() uint64 {
 func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf metricinfo.NfType) {
 	switch subsData.Operation {
 	case metricinfo.SubsOpAdd:
-		storeSubscriber(&subsData.Subscriber, sourceNf)
+		err := storeSubscriber(&subsData.Subscriber, sourceNf)
+		if err != nil {
+			logger.CacheLog.Infof("store subsriber %v failed for sourceNF [%v] ", subsData.Subscriber.Imsi, sourceNf)
+		}
 	case metricinfo.SubsOpMod:
 		updateSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpDel:
-		deleteSubscriber(&subsData.Subscriber, sourceNf)
+		err := deleteSubscriber(&subsData.Subscriber, sourceNf)
+		if err != nil {
+			logger.CacheLog.Infof("store subsriber %v failed for sourceNF [%v] ", subsData.Subscriber.Imsi, sourceNf)
+		}
 	default:
 		logger.CacheLog.Errorf("unknown smf subsriber operation [%v] ", subsData.Operation)
 	}

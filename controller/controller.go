@@ -125,7 +125,11 @@ func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 		return rsp, nil
 	} else {
 		logger.ControllerLog.Errorf("http rsp error [%v]", http.StatusText(rsp.StatusCode))
-		rsp.Body.Close()
+		err := rsp.Body.Close()
+		if err != nil {
+			logger.ControllerLog.Warnf("body close error: %v", err)
+		}
+
 		return nil, fmt.Errorf("error response: %v", http.StatusText(rsp.StatusCode))
 	}
 }
@@ -134,8 +138,12 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 	// Keep sending request to Http server until response is success
 	var retries uint = 0
 	var body []byte
+	var err error
 	if req.Body != nil {
-		body, _ = io.ReadAll(req.Body)
+		body, err = io.ReadAll(req.Body)
+		if err != nil {
+			logger.ControllerLog.Warnf("error reading body: %v", err)
+		}
 	}
 	for {
 		cloneReq := req.Clone(context.Background())
@@ -154,13 +162,21 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 			rsp.StatusCode == http.StatusOK || rsp.StatusCode == http.StatusNoContent ||
 			rsp.StatusCode == http.StatusCreated {
 			logger.ControllerLog.Infoln("Get config from peer success")
-			req.Body.Close()
+			err := req.Body.Close()
+			if err != nil {
+				logger.ControllerLog.Warnf("body close error: %v", err)
+			}
+
 			return rsp, nil
 		} else {
 			nextInterval := getNextBackoffInterval(retries, 2)
 			logMsg := "http rsp error [%v], retrying after [%v] sec..."
 			logger.ControllerLog.Warningf(logMsg, http.StatusText(rsp.StatusCode), nextInterval)
-			rsp.Body.Close()
+			err := rsp.Body.Close()
+			if err != nil {
+				logger.ControllerLog.Warnf("body close error: %v", err)
+			}
+
 			time.Sleep(time.Second * time.Duration(nextInterval))
 		}
 	}
@@ -271,7 +287,11 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 					logger.ControllerLog.Infoln("GetSiteInfo received from RoC: ", siteInfo)
 				}
 
-				b, _ := io.ReadAll(rsp.Body)
+				b, err := io.ReadAll(rsp.Body)
+				if err != nil {
+					logger.ControllerLog.Warnf("error reading body: %v", err)
+				}
+
 				logger.ControllerLog.Infof("SimDetails Received from RoC: %s\n", string(b))
 			} else {
 				logger.ControllerLog.Errorln("GetSiteInfo Http Response Body is empty")
@@ -296,12 +316,20 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				rocDisableImsiApi := rocSiteApi + "/" + siteInfo.SiteId + "/sim-card/" + rocDisableSimCard.SimId
 				var val bool
 				rocDisableSimCard.Enable = &val
-				b, _ := json.Marshal(&rocDisableSimCard)
+				b, err := json.Marshal(&rocDisableSimCard)
+				if err != nil {
+					logger.ControllerLog.Warnf("error marshalling imsi %v: %v", rocDisableSimCard.Imsi, err)
+				}
+
 				reqMsgBody := bytes.NewBuffer(b)
 				logger.ControllerLog.Debugln("Rest API to disable IMSI: ", rocDisableImsiApi)
 				logger.ControllerLog.Debugln("Post Msg Body:", reqMsgBody)
 
-				req, _ := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
+				req, err := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
+				if err != nil {
+					logger.ControllerLog.Warnf("error with new request: %v", err)
+				}
+
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
 				_, httpErr := sendHttpReqMsgWithoutRetry(req)
 				if httpErr != nil {
