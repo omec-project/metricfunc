@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
@@ -87,7 +86,8 @@ func InitControllerConfig(CConfig *config.Config) error {
 	}
 
 	logger.ControllerLog.Infoln("Ons Api Server Endpoint:")
-	ControllerConfig.Configuration.UserAppApiServer.Addr = strings.TrimSpace(ControllerConfig.Configuration.UserAppApiServer.Addr)
+	addr := ControllerConfig.Configuration.UserAppApiServer.Addr
+	ControllerConfig.Configuration.UserAppApiServer.Addr = strings.TrimSpace(addr)
 	logger.ControllerLog.Infoln("Address ", ControllerConfig.Configuration.UserAppApiServer.Addr)
 	logger.ControllerLog.Infoln("Port ", ControllerConfig.Configuration.UserAppApiServer.Port)
 	logger.ControllerLog.Infoln("PollInterval ", ControllerConfig.Configuration.UserAppApiServer.PollInterval)
@@ -135,12 +135,12 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 	var retries uint = 0
 	var body []byte
 	if req.Body != nil {
-		body, _ = ioutil.ReadAll(req.Body)
+		body, _ = io.ReadAll(req.Body)
 	}
 	for {
 		cloneReq := req.Clone(context.Background())
-		req.Body = ioutil.NopCloser(bytes.NewReader(body))
-		cloneReq.Body = ioutil.NopCloser(bytes.NewReader(body))
+		req.Body = io.NopCloser(bytes.NewReader(body))
+		cloneReq.Body = io.NopCloser(bytes.NewReader(body))
 		rsp, err := client.Do(cloneReq)
 		retries += 1
 		if err != nil {
@@ -158,7 +158,8 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 			return rsp, nil
 		} else {
 			nextInterval := getNextBackoffInterval(retries, 2)
-			logger.ControllerLog.Warningf("http rsp error [%v], retrying after [%v] sec...", http.StatusText(rsp.StatusCode), nextInterval)
+			logMsg := "http rsp error [%v], retrying after [%v] sec..."
+			logger.ControllerLog.Warningf(logMsg, http.StatusText(rsp.StatusCode), nextInterval)
 			rsp.Body.Close()
 			time.Sleep(time.Second * time.Duration(nextInterval))
 		}
@@ -182,7 +183,7 @@ func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	logger.ControllerLog.Infoln("UserAppApp Url: ", userAppServerApi)
 	req, err := http.NewRequest(http.MethodGet, userAppServerApi, nil)
 	if err != nil {
-		logger.ControllerLog.Errorln("An Error Occured ", err)
+		logger.ControllerLog.Errorln("An Error Occurred ", err)
 		return
 	}
 
@@ -221,7 +222,7 @@ func (rocClient *RocService) GetTargets() (names []Targets) {
 	rocTargetsApi := rocClient.RocServiceUrl + "/aether-roc-api/targets"
 	req, err := http.NewRequest(http.MethodGet, rocTargetsApi, nil)
 	if err != nil {
-		logger.ControllerLog.Errorf("GetTargets Request Error Occured %v", err)
+		logger.ControllerLog.Errorf("GetTargets Request Error Occurred %v", err)
 		return
 	}
 	rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
@@ -252,7 +253,7 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		rocSiteApi := rocClient.RocServiceUrl + "/aether-roc-api/aether/v2.1.x/" + target.EnterpriseId + "/site"
 		req, err := http.NewRequest(http.MethodGet, rocSiteApi, nil)
 		if err != nil {
-			logger.ControllerLog.Errorf("GetSiteInfo Request Error Occured %v", err)
+			logger.ControllerLog.Errorf("GetSiteInfo Request Error Occurred %v", err)
 			return
 		}
 		rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
@@ -284,9 +285,7 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		var rocDisableSimCard *SimCard
 		for _, siteInfo := range siteInfo {
 			for _, simCard := range siteInfo.SimCardDetails {
-				if strings.HasPrefix(imsi, "imsi-") {
-					imsi = imsi[5:]
-				}
+				imsi = strings.TrimPrefix(imsi, "imsi-")
 				if simCard.Imsi == imsi {
 					logger.ControllerLog.Infof("SimCard %v Details Found in site [%v]\n", imsi, siteInfo.SiteId)
 					rocDisableSimCard = &simCard
@@ -317,8 +316,10 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 }
 
 func RogueIPHandler(rogueIPChannel chan RogueIPs) {
+	addr := ControllerConfig.Configuration.RocEndPoint.Addr
+	port := ControllerConfig.Configuration.RocEndPoint.Port
 	rocClient := RocService{
-		RocServiceUrl: "http://" + ControllerConfig.Configuration.RocEndPoint.Addr + ":" + strconv.Itoa(ControllerConfig.Configuration.RocEndPoint.Port),
+		RocServiceUrl: "http://" + addr + ":" + strconv.Itoa(port),
 	}
 
 	for rogueIPs := range rogueIPChannel {
