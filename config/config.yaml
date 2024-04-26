@@ -13,16 +13,16 @@ configuration:
   nfStreams:
     - topic:
         topicName: "sdcore-data-source-smf"
-        topicGroup: "analytics" #mongodb, restapi, prometheus 
+        topicGroup: "analytics" #mongodb, restapi, prometheus
       urls:
         - uri: "sd-core-kafka-headless"
-          port: :9092
+          port: 9092
     - topic:
         topicName: "sdcore-data-source-amf"
-        topicGroup: "analytics" #mongodb, restapi, prometheus 
+        topicGroup: "analytics" #mongodb, restapi, prometheus
       urls:
         - uri: "sd-core-kafka-headless"
-          port :9092   
+          port: 9092   
   analyticsStream: #this shall be producer for Analytics Func
     enable: false
     urls:
