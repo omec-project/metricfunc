@@ -8,7 +8,7 @@ require (
 	github.com/omec-project/http2_util v1.2.0
 	github.com/omec-project/logger_util v1.2.0
 	github.com/omec-project/openapi v1.2.0
-	github.com/prometheus/client_golang v1.19.0
+	github.com/prometheus/client_golang v1.19.1
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/net v0.25.0
