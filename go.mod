@@ -5,9 +5,8 @@ go 1.21
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/gin-gonic/gin v1.10.0
-	github.com/omec-project/http2_util v1.2.0
-	github.com/omec-project/logger_util v1.2.0
 	github.com/omec-project/openapi v1.2.0
+	github.com/omec-project/util v1.1.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/segmentio/kafka-go v0.4.47
 	github.com/sirupsen/logrus v1.9.3
@@ -16,7 +15,7 @@ require (
 )
 
 require (
-	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
+	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bytedance/sonic v1.11.6 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
