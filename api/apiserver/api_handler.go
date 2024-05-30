@@ -90,12 +90,12 @@ func GetNfStatusAll(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{})
 }
 
-//Gives summary stats for any service
+// Gives summary stats for any service
 func GetNfServiceStatsSummary(c *gin.Context) {
 
 }
 
-//Gives detail stats of any service
+// Gives detail stats of any service
 func GetNfServiceStatsDetail(c *gin.Context) {
 	nfType := c.Params.ByName("type")
 
@@ -112,7 +112,7 @@ func GetNfServiceStatsDetail(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{})
 }
 
-//Gives summary of all services
+// Gives summary of all services
 func GetNfServiceStatsAll(c *gin.Context) {
 }
 

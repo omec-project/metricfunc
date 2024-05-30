@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2022-present Intel Corporation
 
 SPDX-License-Identifier: Apache-2.0
 -->
-
+[![Go Report Card](https://goreportcard.com/badge/github.com/omec-project/metricfunc)](https://goreportcard.com/report/github.com/omec-project/metricfunc)
 
 # Metric Function
 
@@ -34,4 +34,4 @@ For more details about the Grafana Dashboard, please refer- https://docs.aetherp
 
 For more details about the Metric-Function, please refer- https://docs.sd-core.opennetworking.org/master/design/design-metricfunc.html
 
-  
+
