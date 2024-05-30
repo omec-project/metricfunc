@@ -97,7 +97,7 @@ func (ps *PromStats) register() error {
 	return nil
 }
 
-//PushCoreSubData increments message level stats
+// PushCoreSubData increments message level stats
 func PushCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 	logger.PromLog.Debugf("adding subscriber data [%v, %v, %v, %v, %v, %v %v ]", imsi, ip_addr, state, smf_ip, dnn, slice, upf)
 	promStats.coreSub.WithLabelValues(imsi, "", state, smf_ip, dnn, slice, upf).Inc()
@@ -108,7 +108,7 @@ func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 	promStats.coreSub.DeleteLabelValues(imsi, "", state, smf_ip, dnn, slice, upf)
 }
 
-//SetSessStats maintains Session level stats
+// SetSessStats maintains Session level stats
 func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
 	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v ]", count, smfIp, slice, dnn, upf)
 	promStats.smfSessions.WithLabelValues("", "", "", "").Set(float64(count))
