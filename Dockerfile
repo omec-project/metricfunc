@@ -11,7 +11,7 @@ WORKDIR $GOPATH/src/metricfunc
 COPY . .
 RUN make all
 
-FROM alpine:3.20 as metricfunc
+FROM alpine:3.20 AS metricfunc
 
 LABEL description="Aether open source 5G Core Network" \
     version="Stage 3"
