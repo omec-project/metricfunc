@@ -7,7 +7,7 @@ package metricdata
 import (
 	"sync"
 
-	"github.com/omec-project/metricfunc/pkg/metricinfo"
+	"github.com/omec-project/util/metricinfo"
 )
 
 var metricData MetricData

@@ -3,13 +3,12 @@ module github.com/omec-project/metricfunc
 go 1.21
 
 require (
-	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/gin-gonic/gin v1.10.0
 	github.com/omec-project/openapi v1.3.1
-	github.com/omec-project/util v1.1.0
+	github.com/omec-project/util v1.2.1
 	github.com/prometheus/client_golang v1.20.4
 	github.com/segmentio/kafka-go v0.4.47
-	github.com/sirupsen/logrus v1.9.3
+	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.29.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -48,7 +47,6 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.8.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/oauth2 v0.23.0 // indirect

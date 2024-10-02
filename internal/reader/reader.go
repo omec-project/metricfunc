@@ -8,13 +8,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
-	"github.com/omec-project/metricfunc/pkg/metricinfo"
+	"github.com/omec-project/util/metricinfo"
 	"github.com/segmentio/kafka-go"
 )
 
@@ -49,29 +48,29 @@ func getSourceNfType(r *kafka.Reader) metricinfo.NfType {
 	case "sdcore-data-source-amf":
 		return metricinfo.NfTypeAmf
 	default:
-		log.Default().Fatalf("invalid topic name [%v] ", topic)
+		logger.AppLog.Fatalf("invalid topic name [%v]", topic)
 		return metricinfo.NfTypeEnd
 	}
 }
 
 func reader(r *kafka.Reader) {
-	logger.AppLog.Infof("kafka reader for topic [%v] initialised ", r.Config().Topic)
+	logger.AppLog.Infof("kafka reader for topic [%v] initialised", r.Config().Topic)
 	sourceNf := getSourceNfType(r)
 	for {
 		// the `ReadMessage` function blocks until we receive the next event
 		ctxt := context.Background()
 		msg, err := r.ReadMessage(ctxt)
 		if err != nil {
-			logger.AppLog.Errorf("Error reading off kafka bus err:%v", err)
+			logger.AppLog.Errorf("Error reading off kafka bus err: %v", err)
 			time.Sleep(10 * time.Millisecond)
 			continue
 		}
-		logger.AppLog.Debugf("stream [%v] message %s ", r.Config().Topic, string(msg.Value))
+		logger.AppLog.Debugf("stream [%v] message %s", r.Config().Topic, string(msg.Value))
 
 		var metricEvent metricinfo.MetricEvent
 		// Unmarshal the msg
 		if err := json.Unmarshal(msg.Value, &metricEvent); err != nil {
-			logger.AppLog.Fatalf("unmarshal smf event error %v ", err.Error())
+			logger.AppLog.Fatalf("unmarshal smf event error %v", err.Error())
 		}
 
 		switch metricEvent.EventType {
@@ -82,7 +81,7 @@ func reader(r *kafka.Reader) {
 		case metricinfo.CNfStatusEvt:
 			metricdata.HandleNfStatusEvent(&metricEvent.NfStatusData)
 		default:
-			log.Fatalf("unknown event type [%v] ", metricEvent.EventType)
+			logger.AppLog.Fatalf("unknown event type [%v]", metricEvent.EventType)
 		}
 	}
 }

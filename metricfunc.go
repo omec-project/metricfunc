@@ -19,7 +19,7 @@ import (
 	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/internal/reader"
 	"github.com/omec-project/metricfunc/logger"
-	"github.com/sirupsen/logrus"
+	"go.uber.org/zap/zapcore"
 	"gopkg.in/yaml.v2"
 )
 
@@ -38,21 +38,21 @@ func main() {
 
 	cfg := config.Config{}
 	if content, err := os.ReadFile(*cfgFilePtr); err != nil {
-		logger.AppLog.Errorln("Readfile failed called ", err)
+		logger.AppLog.Errorln("readfile failed", err)
 		return
 	} else {
 		if yamlErr := yaml.Unmarshal(content, &cfg); yamlErr != nil {
-			logger.AppLog.Errorln("yaml parsing failed ", yamlErr)
+			logger.AppLog.Errorln("yaml parsing failed", yamlErr)
 			return
 		}
 	}
 
-	logger.AppLog.Infof("Configuration : %v", cfg.Configuration)
+	logger.AppLog.Infof("configuration: %v", cfg.Configuration)
 	cfg.Configuration.ApiServer.Addr = PodIp
 	cfg.Configuration.PrometheusServer.Addr = PodIp
 
 	// set log level
-	if level, err := logrus.ParseLevel(cfg.Logger.LogLevel); err == nil {
+	if level, err := zapcore.ParseLevel(cfg.Logger.LogLevel); err == nil {
 		logger.AppLog.Infof("setting log level [%v]", cfg.Logger.LogLevel)
 		logger.SetLogLevel(level)
 	}
@@ -89,7 +89,7 @@ func main() {
 	// Go Pprofiling
 	debugProfPort := cfg.Configuration.DebugProfile.Port
 	if debugProfPort != 0 {
-		logger.AppLog.Infof("pprofile exposed on port [%v] ", debugProfPort)
+		logger.AppLog.Infof("pprofile exposed on port [%v]", debugProfPort)
 		httpAddr := fmt.Sprintf(":%d", debugProfPort)
 		go func() {
 			err := http.ListenAndServe(httpAddr, nil)

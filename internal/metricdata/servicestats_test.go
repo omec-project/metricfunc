@@ -6,7 +6,7 @@ package metricdata
 
 import (
 	"github.com/omec-project/metricfunc/logger"
-	"github.com/omec-project/metricfunc/pkg/metricinfo"
+	"github.com/omec-project/util/metricinfo"
 )
 
 func TestfillTestSmfSvcStats() {
