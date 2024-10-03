@@ -6,7 +6,6 @@ package promclient
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/omec-project/metricfunc/config"
@@ -29,12 +28,12 @@ func init() {
 	promStats = initPromStats()
 
 	if err := promStats.register(); err != nil {
-		log.Panicln("prometheus stats register failed ", err.Error())
+		logger.PromLog.Panicln("prometheus stats register failed", err.Error())
 	}
 }
 
 func StartPrometheusClient(cfg *config.ServerAddr) {
-	logger.PromLog.Debugf("prometheus server initialised on address [%v] port [%v] ", cfg.Addr, cfg.Port)
+	logger.PromLog.Debugf("prometheus server initialised on address [%v] port [%v]", cfg.Addr, cfg.Port)
 	HTTPAddr := fmt.Sprintf(":%d", cfg.Port)
 	http.Handle("/metrics", promhttp.Handler())
 	http.ListenAndServe(HTTPAddr, nil)
@@ -71,27 +70,27 @@ func initPromStats() *PromStats {
 
 func (ps *PromStats) register() error {
 	if err := prometheus.Register(ps.coreSub); err != nil {
-		logger.PromLog.Errorf("register core subscriber detail stats failed: %v ", err.Error())
+		logger.PromLog.Errorf("register core subscriber detail stats failed: %v", err.Error())
 		return err
 	}
 
 	if err := prometheus.Register(ps.smfSessions); err != nil {
-		logger.PromLog.Errorf("register core subscriber count stats failed: %v ", err.Error())
+		logger.PromLog.Errorf("register core subscriber count stats failed: %v", err.Error())
 		return err
 	}
 
 	if err := prometheus.Register(ps.nfStatus); err != nil {
-		logger.PromLog.Errorf("register nf status stats failed: %v ", err.Error())
+		logger.PromLog.Errorf("register nf status stats failed: %v", err.Error())
 		return err
 	}
 
 	if err := prometheus.Register(ps.smfSvcStat); err != nil {
-		logger.PromLog.Errorf("register smf service stats failed: %v ", err.Error())
+		logger.PromLog.Errorf("register smf service stats failed: %v", err.Error())
 		return err
 	}
 
 	if err := prometheus.Register(ps.amfSvcStat); err != nil {
-		logger.PromLog.Errorf("register amf service stats failed: %v ", err.Error())
+		logger.PromLog.Errorf("register amf service stats failed: %v", err.Error())
 		return err
 	}
 	return nil
@@ -99,7 +98,7 @@ func (ps *PromStats) register() error {
 
 // PushCoreSubData increments message level stats
 func PushCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
-	logger.PromLog.Debugf("adding subscriber data [%v, %v, %v, %v, %v, %v %v ]", imsi, ip_addr, state, smf_ip, dnn, slice, upf)
+	logger.PromLog.Debugf("adding subscriber data [%v, %v, %v, %v, %v, %v, %v]", imsi, ip_addr, state, smf_ip, dnn, slice, upf)
 	promStats.coreSub.WithLabelValues(imsi, "", state, smf_ip, dnn, slice, upf).Inc()
 }
 
@@ -110,12 +109,12 @@ func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 
 // SetSessStats maintains Session level stats
 func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
-	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v ]", count, smfIp, slice, dnn, upf)
+	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v]", count, smfIp, slice, dnn, upf)
 	promStats.smfSessions.WithLabelValues("", "", "", "").Set(float64(count))
 }
 
 func DeleteSmfSessStats(smfIp, slice, dnn, upf string) {
-	logger.PromLog.Warn("deleting smf session count stats")
+	logger.PromLog.Warnln("deleting smf session count stats")
 	promStats.smfSessions.DeleteLabelValues(smfIp, slice, dnn, upf)
 }
 
@@ -125,11 +124,11 @@ func SetNfStatus(nfName, nfType, nfStatus string, value uint64) {
 }
 
 func IncrementSmfSvcStats(smfId, msgType string) {
-	logger.PromLog.Debugf("incrementing smf service stats, instance [%v] msgtype [%v] ", smfId, msgType)
+	logger.PromLog.Debugf("incrementing smf service stats, instance [%v] msgtype [%v]", smfId, msgType)
 	promStats.smfSvcStat.WithLabelValues(smfId, msgType).Inc()
 }
 
 func IncrementAmfSvcStats(amfId, msgType string) {
-	logger.PromLog.Debugf("incrementing amf service stats, instance [%v] msgtype [%v] ", amfId, msgType)
+	logger.PromLog.Debugf("incrementing amf service stats, instance [%v] msgtype [%v]", amfId, msgType)
 	promStats.smfSvcStat.WithLabelValues(amfId, msgType).Inc()
 }

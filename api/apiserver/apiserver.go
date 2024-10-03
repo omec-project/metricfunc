@@ -10,14 +10,14 @@ import (
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/logger"
 	"github.com/omec-project/util/http2_util"
-	logger_util "github.com/omec-project/util/logger"
+	utilLogger "github.com/omec-project/util/logger"
 )
 
 func init() {
 }
 
 func StartApiServer(cfg *config.ServerAddr) {
-	router := logger_util.NewGinWithLogrus(logger.GinLog)
+	router := utilLogger.NewGinWithZap(logger.GinLog)
 	AddService(router)
 	HTTPAddr := fmt.Sprintf(":%d", cfg.Port)
 	logger.ApiSrvLog.Debugf("api server initialised on address [%v] port [%v] ", cfg.Addr, cfg.Port)
