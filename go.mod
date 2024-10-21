@@ -6,7 +6,7 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/omec-project/openapi v1.3.1
 	github.com/omec-project/util v1.2.3
-	github.com/prometheus/client_golang v1.20.4
+	github.com/prometheus/client_golang v1.20.5
 	github.com/segmentio/kafka-go v0.4.47
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.30.0
