@@ -85,17 +85,17 @@ func InitControllerConfig(CConfig *config.Config) error {
 		ControllerConfig.Configuration.UserAppApiServer.PollInterval = 30
 	}
 
-	logger.ControllerLog.Infoln("Ons Api Server Endpoint:")
+	logger.ControllerLog.Infoln("ons Api Server Endpoint:")
 	addr := ControllerConfig.Configuration.UserAppApiServer.Addr
 	ControllerConfig.Configuration.UserAppApiServer.Addr = strings.TrimSpace(addr)
-	logger.ControllerLog.Infoln("Address", ControllerConfig.Configuration.UserAppApiServer.Addr)
-	logger.ControllerLog.Infoln("Port", ControllerConfig.Configuration.UserAppApiServer.Port)
-	logger.ControllerLog.Infoln("PollInterval", ControllerConfig.Configuration.UserAppApiServer.PollInterval)
+	logger.ControllerLog.Infoln("address", ControllerConfig.Configuration.UserAppApiServer.Addr)
+	logger.ControllerLog.Infoln("port", ControllerConfig.Configuration.UserAppApiServer.Port)
+	logger.ControllerLog.Infoln("pollInterval", ControllerConfig.Configuration.UserAppApiServer.PollInterval)
 
-	logger.ControllerLog.Infoln("Roc Endpoint:")
+	logger.ControllerLog.Infoln("roc Endpoint:")
 	ControllerConfig.Configuration.RocEndPoint.Addr = strings.TrimSpace(ControllerConfig.Configuration.RocEndPoint.Addr)
-	logger.ControllerLog.Infoln("Address", ControllerConfig.Configuration.RocEndPoint.Addr)
-	logger.ControllerLog.Infoln("Port", ControllerConfig.Configuration.RocEndPoint.Port)
+	logger.ControllerLog.Infoln("address", ControllerConfig.Configuration.RocEndPoint.Addr)
+	logger.ControllerLog.Infoln("port", ControllerConfig.Configuration.RocEndPoint.Port)
 
 	return nil
 }
@@ -114,7 +114,7 @@ func getNextBackoffInterval(retry, interval uint) uint {
 func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 	rsp, err := client.Do(req)
 	if err != nil {
-		logger.ControllerLog.Errorf("http req send error [%v]", err.Error())
+		logger.ControllerLog.Errorf("http req send error [%+v]", err)
 		return nil, err
 	}
 
@@ -135,7 +135,7 @@ func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 }
 
 func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
-	// Keep sending request to Http server until response is success
+	// Keep sending request to http server until response is success
 	var retries uint = 0
 	var body []byte
 	var err error
@@ -153,7 +153,7 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 		retries += 1
 		if err != nil {
 			nextInterval := getNextBackoffInterval(retries, 2)
-			logger.ControllerLog.Warnf("http req send error [%v], retrying after %v sec...", err.Error(), nextInterval)
+			logger.ControllerLog.Warnf("http req send error [%+v], retrying after %v sec...", err, nextInterval)
 			time.Sleep(time.Second * time.Duration(nextInterval))
 			continue
 		}
@@ -185,28 +185,28 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 func validateIPs(ips RogueIPs) (validIps RogueIPs) {
 	for _, ip := range ips.IpAddresses {
 		if net.ParseIP(ip) == nil {
-			logger.ControllerLog.Errorf("UserAppApp response received with IP Address: %s - Invalid\n", ip)
+			logger.ControllerLog.Errorf("userAppApp response received with IP Address: %s - Invalid", ip)
 			continue
 		}
 		validIps.IpAddresses = append(validIps.IpAddresses, ip)
 	}
-	logger.ControllerLog.Debugf("RogueIPs [%v] received from UserAppApp", validIps.IpAddresses)
+	logger.ControllerLog.Debugf("rogueIPs [%v] received from userAppApp", validIps.IpAddresses)
 	return validIps
 }
 
 func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	userAppServerApi := userAppClient.UserAppServiceUrl
-	logger.ControllerLog.Infoln("UserAppApp Url: ", userAppServerApi)
+	logger.ControllerLog.Infoln("userAppApp Url:", userAppServerApi)
 	req, err := http.NewRequest(http.MethodGet, userAppServerApi, nil)
 	if err != nil {
-		logger.ControllerLog.Errorln("An Error Occurred ", err)
+		logger.ControllerLog.Errorln("an error occurred", err)
 		return
 	}
 
 	for {
 		rsp, httpErr := sendHttpReqMsg(req)
 		if httpErr != nil {
-			logger.ControllerLog.Errorf("Get Message [%v] returned error [%v] ", userAppServerApi, err.Error())
+			logger.ControllerLog.Errorf("get message [%v] returned error [%+v]", userAppServerApi, err)
 			time.Sleep(10 * time.Second)
 			continue
 		}
@@ -216,9 +216,9 @@ func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 			if rsp.Body != nil {
 				err := json.NewDecoder(rsp.Body).Decode(&rogueIPs)
 				if err != nil {
-					logger.ControllerLog.Errorln("UserAppApp response body decode failed: ", err)
+					logger.ControllerLog.Errorln("userAppApp response body decode failed:", err)
 				} else {
-					logger.ControllerLog.Infoln("received rogueIPs from UserApp App: ", rogueIPs)
+					logger.ControllerLog.Infoln("received rogueIPs from userAppApp:", rogueIPs)
 					ips := validateIPs(rogueIPs)
 					if len(ips.IpAddresses) > 0 {
 						// writing rogueIPs into channel
@@ -226,7 +226,7 @@ func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 					}
 				}
 			} else {
-				logger.ControllerLog.Infoln("Http Response Body from UserAppApp is empty")
+				logger.ControllerLog.Infoln("http response body from userAppApp is empty")
 			}
 		}
 
@@ -238,12 +238,12 @@ func (rocClient *RocService) GetTargets() (names []Targets) {
 	rocTargetsApi := rocClient.RocServiceUrl + "/aether-roc-api/targets"
 	req, err := http.NewRequest(http.MethodGet, rocTargetsApi, nil)
 	if err != nil {
-		logger.ControllerLog.Errorf("GetTargets Request Error Occurred %v", err)
+		logger.ControllerLog.Errorf("get targets request error occurred %v", err)
 		return
 	}
 	rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 	if httpErr != nil {
-		logger.ControllerLog.Errorf("Get Message [%v] returned error [%v] ", rocTargetsApi, httpErr.Error())
+		logger.ControllerLog.Errorf("get message [%v] returned error [%v] ", rocTargetsApi, httpErr.Error())
 		return
 	}
 
@@ -251,15 +251,15 @@ func (rocClient *RocService) GetTargets() (names []Targets) {
 		if rsp.Body != nil {
 			err := json.NewDecoder(rsp.Body).Decode(&names)
 			if err != nil {
-				logger.ControllerLog.Errorln("Unable to decode Targets: ", err)
+				logger.ControllerLog.Errorln("unable to decode Targets:", err)
 			} else {
-				logger.ControllerLog.Infoln("GetTargets received from RoC: ", names)
+				logger.ControllerLog.Infoln("get targets received from RoC:", names)
 			}
 		} else {
-			logger.ControllerLog.Errorln("GetTargets Http Response Body is empty")
+			logger.ControllerLog.Errorln("get targets http response body is empty")
 		}
 	} else {
-		logger.ControllerLog.Errorln("GetTargets Http Response is empty")
+		logger.ControllerLog.Errorln("get targets http response is empty")
 	}
 	return
 }
@@ -269,12 +269,12 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		rocSiteApi := rocClient.RocServiceUrl + "/aether-roc-api/aether/v2.1.x/" + target.EnterpriseId + "/site"
 		req, err := http.NewRequest(http.MethodGet, rocSiteApi, nil)
 		if err != nil {
-			logger.ControllerLog.Errorf("GetSiteInfo Request Error Occurred %v", err)
+			logger.ControllerLog.Errorf("GetSiteInfo request error occurred %v", err)
 			return
 		}
 		rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 		if httpErr != nil {
-			logger.ControllerLog.Errorf("GetSiteInfo Message [%v] returned error [%v] ", rocSiteApi, httpErr.Error())
+			logger.ControllerLog.Errorf("GetSiteInfo message [%v] returned error [%v] ", rocSiteApi, httpErr.Error())
 			continue
 		}
 		var siteInfo []SiteInfo
@@ -292,13 +292,13 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 					logger.ControllerLog.Warnf("error reading body: %v", err)
 				}
 
-				logger.ControllerLog.Infof("SimDetails Received from RoC: %s\n", string(b))
+				logger.ControllerLog.Infof("SimDetails received from RoC: %s", string(b))
 			} else {
-				logger.ControllerLog.Errorln("GetSiteInfo Http Response Body is empty")
+				logger.ControllerLog.Errorln("GetSiteInfo http response body is empty")
 				continue
 			}
 		} else {
-			logger.ControllerLog.Errorln("GetSiteInfo Http Response is empty")
+			logger.ControllerLog.Errorln("GetSiteInfo http response is empty")
 			continue
 		}
 
@@ -307,7 +307,7 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 			for _, simCard := range siteInfo.SimCardDetails {
 				imsi = strings.TrimPrefix(imsi, "imsi-")
 				if simCard.Imsi == imsi {
-					logger.ControllerLog.Infof("SimCard %v Details Found in site [%v]\n", imsi, siteInfo.SiteId)
+					logger.ControllerLog.Infof("SimCard %v details found in site [%v]", imsi, siteInfo.SiteId)
 					rocDisableSimCard = &simCard
 					break
 				}
@@ -322,8 +322,8 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				}
 
 				reqMsgBody := bytes.NewBuffer(b)
-				logger.ControllerLog.Debugln("Rest API to disable IMSI: ", rocDisableImsiApi)
-				logger.ControllerLog.Debugln("Post Msg Body:", reqMsgBody)
+				logger.ControllerLog.Debugln("rest API to disable imsi:", rocDisableImsiApi)
+				logger.ControllerLog.Debugln("post msg body:", reqMsgBody)
 
 				req, err := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
 				if err != nil {
@@ -333,14 +333,14 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
 				_, httpErr := sendHttpReqMsgWithoutRetry(req)
 				if httpErr != nil {
-					logger.ControllerLog.Errorf("Post Message [%v] returned error [%v] ", rocDisableImsiApi, httpErr.Error())
+					logger.ControllerLog.Errorf("post message [%v] returned error [%v]", rocDisableImsiApi, httpErr.Error())
 				}
 				return
 			}
 		}
 	}
 
-	logger.ControllerLog.Warnf("Imsi details not found in Targets and SiteInfo: [%v]", imsi)
+	logger.ControllerLog.Warnf("imsi details not found in Targets and SiteInfo: [%v]", imsi)
 }
 
 func RogueIPHandler(rogueIPChannel chan RogueIPs) {
@@ -355,15 +355,15 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 			// get IP to imsi mapping from metricfunc
 			subscriberInfo, err := metricdata.GetSubscriberImsiFromIpAddr(ipaddr)
 			if err != nil {
-				logger.ControllerLog.Errorln("Subscriber details doesn't exist with imsi ", err)
+				logger.ControllerLog.Errorln("subscriber details doesn't exist with imsi", err)
 				continue
 			}
-			logger.ControllerLog.Infof("Subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
+			logger.ControllerLog.Infof("subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
 			// get enterprises or targets from ROC
 			targets := rocClient.GetTargets()
 
 			if len(targets) == 0 {
-				logger.ControllerLog.Errorln("GetTargets returns nil")
+				logger.ControllerLog.Errorln("get targets returns nil")
 			} else {
 				// get siteinfo from ROC
 				rocClient.DisableSimcard(targets, subscriberInfo.Imsi)

@@ -36,7 +36,9 @@ func StartPrometheusClient(cfg *config.ServerAddr) {
 	logger.PromLog.Debugf("prometheus server initialised on address [%v] port [%v]", cfg.Addr, cfg.Port)
 	HTTPAddr := fmt.Sprintf(":%d", cfg.Port)
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(HTTPAddr, nil)
+	if err := http.ListenAndServe(HTTPAddr, nil); err != nil {
+		logger.PromLog.Errorf("failed to start http server: %v", err)
+	}
 }
 
 func initPromStats() *PromStats {
@@ -98,18 +100,27 @@ func (ps *PromStats) register() error {
 
 // PushCoreSubData increments message level stats
 func PushCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
-	logger.PromLog.Debugf("adding subscriber data [%v, %v, %v, %v, %v, %v, %v]", imsi, ip_addr, state, smf_ip, dnn, slice, upf)
+	logger.PromLog.Debugf(
+		"adding subscriber data [%v, %v, %v, %v, %v, %v, %v]",
+		imsi, ip_addr, state, smf_ip, dnn, slice, upf,
+	)
 	promStats.coreSub.WithLabelValues(imsi, "", state, smf_ip, dnn, slice, upf).Inc()
 }
 
 func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
-	logger.PromLog.Debugf("deleting subscriber data [%v, %v, %v, %v, %v, %v, %v]", imsi, ip_addr, state, smf_ip, dnn, slice, upf)
+	logger.PromLog.Debugf(
+		"deleting subscriber data [%v, %v, %v, %v, %v, %v, %v]",
+		imsi, ip_addr, state, smf_ip, dnn, slice, upf,
+	)
 	promStats.coreSub.DeleteLabelValues(imsi, "", state, smf_ip, dnn, slice, upf)
 }
 
 // SetSessStats maintains Session level stats
 func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
-	logger.PromLog.Debugf("setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v]", count, smfIp, slice, dnn, upf)
+	logger.PromLog.Debugf(
+		"setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v]",
+		count, smfIp, slice, dnn, upf,
+	)
 	promStats.smfSessions.WithLabelValues("", "", "", "").Set(float64(count))
 }
 

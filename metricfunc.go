@@ -32,7 +32,7 @@ func init() {
 
 func main() {
 	// Read provided config
-	cfgFilePtr := flag.String("metrics", "../../config/config.yaml", "is a config file")
+	cfgFilePtr := flag.String("cfg", "/opt/config.yaml", "metricfunc config file")
 	flag.Parse()
 	logger.AppLog.Infof("Metricfunction has started with configuration file [%v]", *cfgFilePtr)
 
