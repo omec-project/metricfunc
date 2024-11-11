@@ -70,8 +70,8 @@ github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32 h1:W6apQkHrMkS0Muv8G/TipAy
 github.com/nbio/st v0.0.0-20140626010706-e9e8d9816f32/go.mod h1:9wM+0iRr9ahx58uYLpLIr5fm8diHn0JbqRycJi6w0Ms=
 github.com/omec-project/openapi v1.3.1 h1:NCteMRdMtWnMhf1CXYduuLgeu8fEhc/7XO1CiE7fN3Y=
 github.com/omec-project/openapi v1.3.1/go.mod h1:cR6Iharp2TLOzEmskQ/EdCVFZnpKh0zTvUSSuyXAYLE=
-github.com/omec-project/util v1.2.3 h1:h32ZYFT99+fB9VPp1CQUIKwrSP6RtX+PbFDcqmEHmn0=
-github.com/omec-project/util v1.2.3/go.mod h1:Gt9TL5+o6BgBQ5DbpQ+A6gwMEFlMjNHV+e2cuAfnkwE=
+github.com/omec-project/util v1.2.5 h1:LuNti7mJjIgRNXkJ+VrpddthZVAUORXid9HIIACbOh8=
+github.com/omec-project/util v1.2.5/go.mod h1:Gt9TL5+o6BgBQ5DbpQ+A6gwMEFlMjNHV+e2cuAfnkwE=
 github.com/pelletier/go-toml/v2 v2.2.2 h1:aYUidT7k73Pcl9nb2gScu7NSrKCSHIDE89b3+6Wq+LM=
 github.com/pelletier/go-toml/v2 v2.2.2/go.mod h1:1t835xjRzz80PqgE6HHgN2JOsmgYu/h4qDAS4n929Rs=
 github.com/pierrec/lz4/v4 v4.1.15 h1:MO0/ucJhngq7299dKLwIMtgTfbkoSPF6AoMYDd8Q4q0=
