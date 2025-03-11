@@ -58,7 +58,7 @@ func GetSubscriberAll(c *gin.Context) {
 		return
 	}
 
-	logger.ApiSrvLog.Errorf("no subscriber data not found ")
+	logger.ApiSrvLog.Errorf("no subscriber data not found")
 	c.JSON(http.StatusNotFound, gin.H{})
 }
 
@@ -147,6 +147,6 @@ func PushTestIPs(c *gin.Context) {
 		logger.ApiSrvLog.Errorf("json unmarshal error: %+v", err)
 	}
 
-	logger.ApiSrvLog.Infoln("Test RogueIPs: ", rogueIPs)
+	logger.ApiSrvLog.Infoln("test RogueIPs:", rogueIPs)
 	controller.RogueChannel <- rogueIPs
 }
