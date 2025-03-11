@@ -104,7 +104,7 @@ func PushCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 		"adding subscriber data [%v, %v, %v, %v, %v, %v, %v]",
 		imsi, ip_addr, state, smf_ip, dnn, slice, upf,
 	)
-	promStats.coreSub.WithLabelValues(imsi, "", state, smf_ip, dnn, slice, upf).Inc()
+	promStats.coreSub.WithLabelValues(imsi, ip_addr, state, smf_ip, dnn, slice, upf).Inc()
 }
 
 func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
@@ -112,7 +112,7 @@ func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 		"deleting subscriber data [%v, %v, %v, %v, %v, %v, %v]",
 		imsi, ip_addr, state, smf_ip, dnn, slice, upf,
 	)
-	promStats.coreSub.DeleteLabelValues(imsi, "", state, smf_ip, dnn, slice, upf)
+	promStats.coreSub.DeleteLabelValues(imsi, ip_addr, state, smf_ip, dnn, slice, upf)
 }
 
 // SetSessStats maintains Session level stats
@@ -121,7 +121,7 @@ func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
 		"setting smf session count [%v] with labels [smfIp:%v, slice:%v, dnn:%v, upf:%v]",
 		count, smfIp, slice, dnn, upf,
 	)
-	promStats.smfSessions.WithLabelValues("", "", "", "").Set(float64(count))
+	promStats.smfSessions.WithLabelValues(smfIp, slice, dnn, upf).Set(float64(count))
 }
 
 func DeleteSmfSessStats(smfIp, slice, dnn, upf string) {
