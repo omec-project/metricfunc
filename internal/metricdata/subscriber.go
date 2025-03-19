@@ -30,17 +30,17 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 	case metricinfo.SubsOpAdd:
 		err := storeSubscriber(&subsData.Subscriber, sourceNf)
 		if err != nil {
-			logger.CacheLog.Infof("store subsriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
+			logger.CacheLog.Infof("store subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
 	case metricinfo.SubsOpMod:
 		updateSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpDel:
 		err := deleteSubscriber(&subsData.Subscriber, sourceNf)
 		if err != nil {
-			logger.CacheLog.Infof("delete subsriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
+			logger.CacheLog.Infof("delete subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
 	default:
-		logger.CacheLog.Errorf("unknown smf subsriber operation [%v]", subsData.Operation)
+		logger.CacheLog.Errorf("unknown smf subscriber operation [%v]", subsData.Operation)
 	}
 }
 
