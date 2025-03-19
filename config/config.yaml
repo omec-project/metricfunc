@@ -22,7 +22,7 @@ configuration:
         topicGroup: "analytics" #mongodb, restapi, prometheus
       urls:
         - uri: "sd-core-kafka-headless"
-          port: 9092   
+          port: 9092
   analyticsStream: #this shall be producer for Analytics Func
     enable: false
     urls:
@@ -44,6 +44,6 @@ configuration:
     addr: "aether-roc-umbrella-aether-roc-gui-v2-1-external.aether-roc.svc"
     port: 31194
   metricFuncEndPoint:
-    addr: "metricfunc.omec.svc"
+    addr: "metricfunc.aether-5gc.svc"
     port: 5001
 
