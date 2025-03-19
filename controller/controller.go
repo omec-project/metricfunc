@@ -85,17 +85,21 @@ func InitControllerConfig(CConfig *config.Config) error {
 		ControllerConfig.Configuration.UserAppApiServer.PollInterval = 30
 	}
 
-	logger.ControllerLog.Infoln("ons Api Server Endpoint:")
 	addr := ControllerConfig.Configuration.UserAppApiServer.Addr
 	ControllerConfig.Configuration.UserAppApiServer.Addr = strings.TrimSpace(addr)
-	logger.ControllerLog.Infoln("address", ControllerConfig.Configuration.UserAppApiServer.Addr)
-	logger.ControllerLog.Infoln("port", ControllerConfig.Configuration.UserAppApiServer.Port)
+	logger.ControllerLog.Infof(
+		"api server endpoint: %v:%v",
+		ControllerConfig.Configuration.UserAppApiServer.Addr,
+		ControllerConfig.Configuration.UserAppApiServer.Port,
+	)
 	logger.ControllerLog.Infoln("pollInterval", ControllerConfig.Configuration.UserAppApiServer.PollInterval)
 
-	logger.ControllerLog.Infoln("roc Endpoint:")
 	ControllerConfig.Configuration.RocEndPoint.Addr = strings.TrimSpace(ControllerConfig.Configuration.RocEndPoint.Addr)
-	logger.ControllerLog.Infoln("address", ControllerConfig.Configuration.RocEndPoint.Addr)
-	logger.ControllerLog.Infoln("port", ControllerConfig.Configuration.RocEndPoint.Port)
+	logger.ControllerLog.Infof(
+		"roc endpoint: %v:%v",
+		ControllerConfig.Configuration.RocEndPoint.Addr,
+		ControllerConfig.Configuration.RocEndPoint.Port,
+	)
 
 	return nil
 }
@@ -161,7 +165,7 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 		if rsp.StatusCode == http.StatusAccepted ||
 			rsp.StatusCode == http.StatusOK || rsp.StatusCode == http.StatusNoContent ||
 			rsp.StatusCode == http.StatusCreated {
-			logger.ControllerLog.Infoln("Get config from peer success")
+			logger.ControllerLog.Infoln("get config from peer success")
 			err := req.Body.Close()
 			if err != nil {
 				logger.ControllerLog.Warnf("body close error: %v", err)
@@ -170,8 +174,11 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 			return rsp, nil
 		} else {
 			nextInterval := getNextBackoffInterval(retries, 2)
-			logMsg := "http rsp error [%v], retrying after [%v] sec..."
-			logger.ControllerLog.Warnf(logMsg, http.StatusText(rsp.StatusCode), nextInterval)
+			logger.ControllerLog.Warnf(
+				"http rsp error [%v], retrying after [%v] sec...",
+				http.StatusText(rsp.StatusCode),
+				nextInterval,
+			)
 			err := rsp.Body.Close()
 			if err != nil {
 				logger.ControllerLog.Warnf("body close error: %v", err)
@@ -243,7 +250,7 @@ func (rocClient *RocService) GetTargets() (names []Targets) {
 	}
 	rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 	if httpErr != nil {
-		logger.ControllerLog.Errorf("get message [%v] returned error [%v] ", rocTargetsApi, httpErr.Error())
+		logger.ControllerLog.Errorf("get message [%v] returned error [%v]", rocTargetsApi, httpErr.Error())
 		return
 	}
 
@@ -274,7 +281,7 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		}
 		rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 		if httpErr != nil {
-			logger.ControllerLog.Errorf("GetSiteInfo message [%v] returned error [%v] ", rocSiteApi, httpErr.Error())
+			logger.ControllerLog.Errorf("GetSiteInfo message [%v] returned error [%v]", rocSiteApi, httpErr.Error())
 			continue
 		}
 		var siteInfo []SiteInfo
@@ -282,9 +289,9 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 			if rsp.Body != nil {
 				err := json.NewDecoder(rsp.Body).Decode(&siteInfo)
 				if err != nil {
-					logger.ControllerLog.Errorln("Unable to decode SiteInfo: ", err)
+					logger.ControllerLog.Errorln("unable to decode SiteInfo:", err)
 				} else {
-					logger.ControllerLog.Infoln("GetSiteInfo received from RoC: ", siteInfo)
+					logger.ControllerLog.Infoln("GetSiteInfo received from RoC:", siteInfo)
 				}
 
 				b, err := io.ReadAll(rsp.Body)

@@ -30,17 +30,17 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 	case metricinfo.SubsOpAdd:
 		err := storeSubscriber(&subsData.Subscriber, sourceNf)
 		if err != nil {
-			logger.CacheLog.Infof("store subsriber %v failed for sourceNF [%v] ", subsData.Subscriber.Imsi, sourceNf)
+			logger.CacheLog.Infof("store subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
 	case metricinfo.SubsOpMod:
 		updateSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpDel:
 		err := deleteSubscriber(&subsData.Subscriber, sourceNf)
 		if err != nil {
-			logger.CacheLog.Infof("store subsriber %v failed for sourceNF [%v] ", subsData.Subscriber.Imsi, sourceNf)
+			logger.CacheLog.Infof("delete subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
 	default:
-		logger.CacheLog.Errorf("unknown smf subsriber operation [%v] ", subsData.Operation)
+		logger.CacheLog.Errorf("unknown smf subscriber operation [%v]", subsData.Operation)
 	}
 }
 
@@ -52,7 +52,7 @@ func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType)
 		metricData.Subscribers[sub.Imsi] = sub
 
 		promclient.SetSmfSessStats(sub.SmfIp, sub.Slice, sub.Dnn, sub.UpfName, incSMContextActive())
-		logger.CacheLog.Debugf("storing subscriber with imsi [%s] ", sub.Imsi)
+		logger.CacheLog.Debugf("storing subscriber with imsi [%s]", sub.Imsi)
 		pushPrometheusCoreSubData(sub)
 		metricData.SubLock.Unlock()
 	} else {
@@ -86,7 +86,7 @@ func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	imsi := sub.Imsi
 	s, ok := metricData.Subscribers[imsi]
 	if !ok {
-		return fmt.Errorf("subscriber with imsi [%s] already deleted ", imsi)
+		return fmt.Errorf("subscriber with imsi [%s] already deleted", imsi)
 	}
 
 	promclient.SetSmfSessStats(s.SmfIp, s.Slice, s.Dnn, s.UpfName, decSMContextActive())
@@ -101,7 +101,7 @@ func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	// register subscriber delete
 	deletePrometheusCoreSubData(s)
 
-	logger.CacheLog.Debugf("deleting subscriber with imsi [%s] ", imsi)
+	logger.CacheLog.Debugf("deleting subscriber with imsi [%s]", imsi)
 
 	return nil
 }
@@ -112,7 +112,7 @@ func GetSubscriber(key string) (*metricinfo.CoreSubscriber, error) {
 	if sub, ok := metricData.Subscribers[key]; ok {
 		return sub, nil
 	}
-	return nil, fmt.Errorf("subscriber with key [%v] not found ", key)
+	return nil, fmt.Errorf("subscriber with key [%v] not found", key)
 }
 
 func GetSubscriberImsiFromIpAddr(ipaddr string) (*metricinfo.CoreSubscriber, error) {
@@ -124,7 +124,7 @@ func GetSubscriberImsiFromIpAddr(ipaddr string) (*metricinfo.CoreSubscriber, err
 			return sub, nil
 		}
 	}
-	return nil, fmt.Errorf("subscriber with ip-addr [%v] not found ", ipaddr)
+	return nil, fmt.Errorf("subscriber with ip-addr [%v] not found", ipaddr)
 }
 
 func GetSubscriberAll() []string {
