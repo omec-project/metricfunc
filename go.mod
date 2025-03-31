@@ -1,6 +1,7 @@
 module github.com/omec-project/metricfunc
 
 go 1.24.0
+
 require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/omec-project/openapi v1.3.4
