@@ -17,9 +17,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
+	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/logger"
 	"golang.org/x/net/http2"
 )
