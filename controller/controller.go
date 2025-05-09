@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
@@ -366,6 +367,7 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				continue
 			}
 			logger.ControllerLog.Infof("subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
+			promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
 			// get enterprises or targets from ROC
 			targets := rocClient.GetTargets()
 
@@ -373,6 +375,8 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				logger.ControllerLog.Errorln("get targets returns nil")
 			} else {
 				// get siteinfo from ROC
+				promclient.DeleteViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
+				promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Resolved")
 				rocClient.DisableSimcard(targets, subscriberInfo.Imsi)
 			}
 		}
