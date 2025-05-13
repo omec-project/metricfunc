@@ -134,14 +134,6 @@ func PushViolSubData(imsi, ip_addr, state string) {
 	promStats.violSub.WithLabelValues(imsi, ip_addr, state).Inc()
 }
 
-func DeleteViolSubData(imsi, ip_addr, state string) {
-	logger.PromLog.Debugf(
-		"deleting viol subscriber data [%v, %v, %v]",
-		imsi, ip_addr,
-	)
-	promStats.violSub.DeleteLabelValues(imsi, ip_addr, state)
-}
-
 // SetSessStats maintains Session level stats
 func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
 	logger.PromLog.Debugf(

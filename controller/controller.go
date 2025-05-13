@@ -367,15 +367,14 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 				continue
 			}
 			logger.ControllerLog.Infof("subscriber Imsi [%v] of the IP: [%v]", subscriberInfo.Imsi, ipaddr)
-			promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
 			// get enterprises or targets from ROC
 			targets := rocClient.GetTargets()
 
 			if len(targets) == 0 {
+				promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
 				logger.ControllerLog.Errorln("get targets returns nil")
 			} else {
 				// get siteinfo from ROC
-				promclient.DeleteViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
 				promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Resolved")
 				rocClient.DisableSimcard(targets, subscriberInfo.Imsi)
 			}
