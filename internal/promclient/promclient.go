@@ -129,7 +129,7 @@ func DeleteCoreSubData(imsi, ip_addr, state, smf_ip, dnn, slice, upf string) {
 func PushViolSubData(imsi, ip_addr, state string) {
 	logger.PromLog.Debugf(
 		"adding viol subscriber data [%v, %v, %v]",
-		imsi, ip_addr,
+		imsi, ip_addr, state,
 	)
 	promStats.violSub.WithLabelValues(imsi, ip_addr, state).Inc()
 }
