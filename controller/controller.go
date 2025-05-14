@@ -19,6 +19,7 @@ import (
 
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/internal/metricdata"
+	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/logger"
 	"golang.org/x/net/http2"
 )
@@ -370,9 +371,11 @@ func RogueIPHandler(rogueIPChannel chan RogueIPs) {
 			targets := rocClient.GetTargets()
 
 			if len(targets) == 0 {
+				promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Active")
 				logger.ControllerLog.Errorln("get targets returns nil")
 			} else {
 				// get siteinfo from ROC
+				promclient.PushViolSubData(subscriberInfo.Imsi, ipaddr, "Resolved")
 				rocClient.DisableSimcard(targets, subscriberInfo.Imsi)
 			}
 		}
