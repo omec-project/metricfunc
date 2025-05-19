@@ -7,7 +7,7 @@ require (
 	github.com/omec-project/openapi v1.4.0
 	github.com/omec-project/util v1.3.0
 	github.com/prometheus/client_golang v1.22.0
-	github.com/segmentio/kafka-go v0.4.47
+	github.com/segmentio/kafka-go v0.4.48
 	go.uber.org/zap v1.27.0
 	golang.org/x/net v0.40.0
 	gopkg.in/yaml.v2 v2.4.0
