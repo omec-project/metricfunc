@@ -3,7 +3,7 @@ module github.com/omec-project/metricfunc
 go 1.24.0
 
 require (
-	github.com/gin-gonic/gin v1.10.0
+	github.com/gin-gonic/gin v1.10.1
 	github.com/omec-project/openapi v1.4.1
 	github.com/omec-project/util v1.3.0
 	github.com/prometheus/client_golang v1.22.0
