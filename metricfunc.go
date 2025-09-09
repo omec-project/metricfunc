@@ -20,7 +20,7 @@ import (
 	"github.com/omec-project/metricfunc/internal/reader"
 	"github.com/omec-project/metricfunc/logger"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/yaml.v2"
+	"go.yaml.in/yaml/v4"
 )
 
 var PodIp string
