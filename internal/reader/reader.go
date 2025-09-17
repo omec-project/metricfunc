@@ -21,9 +21,9 @@ func StartKafkaReader(cfg *config.Configuration) {
 	// Start Kafka Event Reader
 	for _, nfStream := range cfg.NfStreams {
 		r := kafka.NewReader(kafka.ReaderConfig{
-			Brokers: makeUrlsFromUriPort(nfStream.Urls),
-			Topic:   nfStream.Topic.TopicName,
-			GroupID: nfStream.Topic.TopicGroups,
+			Brokers:  makeUrlsFromUriPort(nfStream.Urls),
+			Topic:    nfStream.Topic.TopicName,
+			MaxBytes: 10e6, // 10MB
 		})
 
 		go reader(r)
@@ -48,29 +48,28 @@ func getSourceNfType(r *kafka.Reader) metricinfo.NfType {
 	case "sdcore-data-source-amf":
 		return metricinfo.NfTypeAmf
 	default:
-		logger.AppLog.Fatalf("invalid topic name [%v]", topic)
+		logger.AppLog.Fatalf("invalid topic name: %s", topic)
 		return metricinfo.NfTypeEnd
 	}
 }
 
 func reader(r *kafka.Reader) {
-	logger.AppLog.Infof("kafka reader for topic [%v] initialised", r.Config().Topic)
+	logger.AppLog.Infof("kafka reader for topic [%s] initialised", r.Config().Topic)
 	sourceNf := getSourceNfType(r)
 	for {
 		// the `ReadMessage` function blocks until we receive the next event
-		ctxt := context.Background()
-		msg, err := r.ReadMessage(ctxt)
+		msg, err := r.ReadMessage(context.Background())
 		if err != nil {
-			logger.AppLog.Errorf("Error reading off kafka bus err: %v", err)
+			logger.AppLog.Errorf("error reading off kafka bus err: %v", err)
 			time.Sleep(10 * time.Millisecond)
 			continue
 		}
-		logger.AppLog.Debugf("stream [%v] message %s", r.Config().Topic, string(msg.Value))
+		logger.AppLog.Debugf("stream [%s] message %s", r.Config().Topic, string(msg.Value))
 
 		var metricEvent metricinfo.MetricEvent
 		// Unmarshal the msg
 		if err := json.Unmarshal(msg.Value, &metricEvent); err != nil {
-			logger.AppLog.Fatalf("unmarshal smf event error %v", err.Error())
+			logger.AppLog.Fatalf("unmarshal smf event error %+v", err)
 		}
 
 		switch metricEvent.EventType {
@@ -81,7 +80,7 @@ func reader(r *kafka.Reader) {
 		case metricinfo.CNfStatusEvt:
 			metricdata.HandleNfStatusEvent(&metricEvent.NfStatusData)
 		default:
-			logger.AppLog.Fatalf("unknown event type [%v]", metricEvent.EventType)
+			logger.AppLog.Fatalf("unknown event type: %+v", metricEvent.EventType)
 		}
 	}
 }

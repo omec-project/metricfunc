@@ -47,8 +47,7 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) error {
 	metricData.SubLock.Lock()
 
-	_, ok := metricData.Subscribers[sub.Imsi]
-	if !ok {
+	if _, ok := metricData.Subscribers[sub.Imsi]; !ok {
 		metricData.Subscribers[sub.Imsi] = sub
 
 		promclient.SetSmfSessStats(sub.SmfIp, sub.Slice, sub.Dnn, sub.UpfName, incSMContextActive())
@@ -69,10 +68,11 @@ func updateSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	if s, ok := metricData.Subscribers[sub.Imsi]; ok {
 		deletePrometheusCoreSubData(s)
 
-		if sourceNf == metricinfo.NfTypeSmf {
+		switch sourceNf {
+		case metricinfo.NfTypeSmf:
 			// SMF specific fields
 			fillSmfSubsriberData(sub, s)
-		} else if sourceNf == metricinfo.NfTypeAmf {
+		case metricinfo.NfTypeAmf:
 			// AMF specific fields
 			fillAmfSubsriberData(sub, s)
 		}
