@@ -47,7 +47,6 @@ func main() {
 		}
 	}
 
-	logger.AppLog.Infof("configuration: %v", cfg.Configuration)
 	cfg.Configuration.ApiServer.Addr = PodIp
 	cfg.Configuration.PrometheusServer.Addr = PodIp
 
@@ -56,6 +55,8 @@ func main() {
 		logger.AppLog.Infof("setting log level [%v]", cfg.Logger.LogLevel)
 		logger.SetLogLevel(level)
 	}
+
+	logger.AppLog.Infof("configuration: %+v", cfg.Configuration)
 
 	// Start Kafka Event Reader
 	reader.StartKafkaReader(cfg.Configuration)
