@@ -69,7 +69,7 @@ func reader(r *kafka.Reader) {
 		var metricEvent metricinfo.MetricEvent
 		// Unmarshal the msg
 		if err := json.Unmarshal(msg.Value, &metricEvent); err != nil {
-			logger.AppLog.Fatalf("unmarshal smf event error %+v", err)
+			logger.AppLog.Fatalf("unmarshal metric event error %+v", err)
 		}
 
 		switch metricEvent.EventType {
