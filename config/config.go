@@ -51,7 +51,6 @@ type NFStream struct {
 
 type Topic struct {
 	TopicName   string `yaml:"topicName,omitempty"`
-	TopicGroups string `yaml:"topicGroup,omitempty"`
 }
 
 type Groups struct {
