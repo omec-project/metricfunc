@@ -4,6 +4,7 @@ SPDX-FileCopyrightText: 2022-present Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 -->
 [![Go Report Card](https://goreportcard.com/badge/github.com/omec-project/metricfunc)](https://goreportcard.com/report/github.com/omec-project/metricfunc)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/omec-project/metricfunc/badge)](https://scorecard.dev/viewer/?uri=github.com/omec-project/metricfunc)
 
 # Metric Function
 
@@ -29,9 +30,11 @@ SPDX-License-Identifier: Apache-2.0
 5. GetNfServiceStatsAll (/nmetric-func/v1/nfServiceStats/all)
 
 
-
 For more details about the Grafana Dashboard, please refer- https://docs.aetherproject.org/master/developer/aiabhw5g.html#enable-monitoring
 
 For more details about the Metric-Function, please refer- https://docs.sd-core.opennetworking.org/master/design/design-metricfunc.html
 
+# Reach out to us through
+
+1. #sdcore-dev channel in [Aether Community Slack](https://aether5g-project.slack.com)
 
