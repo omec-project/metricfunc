@@ -1,6 +1,6 @@
 module github.com/omec-project/metricfunc
 
-go 1.24.0
+go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.11.0
@@ -10,7 +10,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.50
 	go.uber.org/zap v1.27.1
 	go.yaml.in/yaml/v4 v4.0.0-rc.4
-	golang.org/x/net v0.50.0
+	golang.org/x/net v0.51.0
 )
 
 require (
