@@ -4,8 +4,8 @@ go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.12.0
-	github.com/omec-project/openapi v1.7.0
-	github.com/omec-project/util v1.7.0
+	github.com/omec-project/openapi v1.7.1
+	github.com/omec-project/util v1.7.1
 	github.com/prometheus/client_golang v1.23.2
 	github.com/segmentio/kafka-go v0.4.50
 	go.uber.org/zap v1.27.1
