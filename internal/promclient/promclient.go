@@ -143,11 +143,6 @@ func SetSmfSessStats(smfIp, slice, dnn, upf string, count uint64) {
 	promStats.smfSessions.WithLabelValues(smfIp, slice, dnn, upf).Set(float64(count))
 }
 
-func DeleteSmfSessStats(smfIp, slice, dnn, upf string) {
-	logger.PromLog.Warnln("deleting smf session count stats")
-	promStats.smfSessions.DeleteLabelValues(smfIp, slice, dnn, upf)
-}
-
 func SetNfStatus(nfName, nfType, nfStatus string, value uint64) {
 	logger.PromLog.Debugf("setting nf [%v], type [%v],  status to [%v]", nfName, nfType, nfStatus)
 	promStats.nfStatus.WithLabelValues(nfName, nfType).Set(float64(value))
