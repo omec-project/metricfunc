@@ -32,10 +32,9 @@ LABEL org.opencontainers.image.source="${VCS_URL}" \
 
 ARG DEBUG_TOOLS
 
-# Install debug tools only when explicitly requested.
 RUN if [ "$DEBUG_TOOLS" = "true" ]; then \
-    apk add --no-cache vim nano strace net-tools curl netcat-openbsd bind-tools tcpdump; \
-        fi
+        apk add --no-cache vim nano strace net-tools curl netcat-openbsd bind-tools tcpdump; \
+    fi
 
 # Copy executable
 COPY --from=builder /go/src/metricfunc/bin/* /usr/local/bin/.
