@@ -23,12 +23,12 @@ func GetSubscriberSummary(c *gin.Context) {
 	}
 
 	if sub != nil {
-		resBody, err := openapi.Serialize(sub, "application/json")
+		resBody, err := openapi.SetBody(sub, "application/json")
 		if err != nil {
 			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
 		}
 
-		_, err = c.Writer.Write(resBody)
+		_, err = c.Writer.Write(resBody.Bytes())
 		if err != nil {
 			logger.ApiSrvLog.Errorf("write data error: %+v", err)
 		}
@@ -44,12 +44,12 @@ func GetSubscriberSummary(c *gin.Context) {
 func GetSubscriberAll(c *gin.Context) {
 	subs := metricdata.GetSubscriberAll()
 	if len(subs) != 0 {
-		resBody, err := openapi.Serialize(subs, "application/json")
+		resBody, err := openapi.SetBody(subs, "application/json")
 		if err != nil {
 			logger.ApiSrvLog.Errorf("json marshal error %+v", err)
 		}
 
-		_, err = c.Writer.Write(resBody)
+		_, err = c.Writer.Write(resBody.Bytes())
 		if err != nil {
 			logger.ApiSrvLog.Errorf("write data error: %+v", err)
 		}
@@ -67,12 +67,12 @@ func GetNfStatus(c *gin.Context) {
 
 	nfs := metricdata.GetNfStatusbyNfType(nfType)
 	if len(nfs) != 0 {
-		resBody, err := openapi.Serialize(nfs, "application/json")
+		resBody, err := openapi.SetBody(nfs, "application/json")
 		if err != nil {
 			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
 		}
 
-		_, err = c.Writer.Write(resBody)
+		_, err = c.Writer.Write(resBody.Bytes())
 		if err != nil {
 			logger.ApiSrvLog.Errorf("write data error: %+v", err)
 		}
@@ -88,12 +88,12 @@ func GetNfStatusAll(c *gin.Context) {
 	nfs := metricdata.GetNfStatusAll()
 
 	if len(nfs) != 0 {
-		resBody, err := openapi.Serialize(nfs, "application/json")
+		resBody, err := openapi.SetBody(nfs, "application/json")
 		if err != nil {
 			logger.ApiSrvLog.Errorf("json marshal error %+v", err)
 		}
 
-		_, err = c.Writer.Write(resBody)
+		_, err = c.Writer.Write(resBody.Bytes())
 		if err != nil {
 			logger.ApiSrvLog.Errorf("write data error: %+v", err)
 		}
@@ -114,12 +114,12 @@ func GetNfServiceStatsDetail(c *gin.Context) {
 	nfType := c.Params.ByName("type")
 
 	if svcStats, err := metricdata.GetNfServiceStatsDetail(nfType); err == nil {
-		resBody, err := openapi.Serialize(svcStats, "application/json")
+		resBody, err := openapi.SetBody(svcStats, "application/json")
 		if err != nil {
 			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
 		}
 
-		_, err = c.Writer.Write(resBody)
+		_, err = c.Writer.Write(resBody.Bytes())
 		if err != nil {
 			logger.ApiSrvLog.Errorf("write data error: %+v", err)
 		}
