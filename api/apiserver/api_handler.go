@@ -12,7 +12,7 @@ import (
 	"github.com/omec-project/metricfunc/controller"
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/logger"
-	"github.com/omec-project/openapi"
+	"github.com/omec-project/openapi/v2"
 )
 
 func GetSubscriberSummary(c *gin.Context) {
