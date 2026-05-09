@@ -15,6 +15,18 @@ import (
 	"github.com/omec-project/openapi/v2"
 )
 
+func writeJSONResponse(c *gin.Context, payload any) bool {
+	resBody, err := openapi.SetBody(payload, "application/json")
+	if err != nil {
+		logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return false
+	}
+
+	c.Data(http.StatusOK, "application/json", resBody.Bytes())
+	return true
+}
+
 func GetSubscriberSummary(c *gin.Context) {
 	subId := c.Params.ByName("imsi")
 	sub, err := metricdata.GetSubscriber(subId)
@@ -23,17 +35,9 @@ func GetSubscriberSummary(c *gin.Context) {
 	}
 
 	if sub != nil {
-		resBody, err := openapi.SetBody(sub, "application/json")
-		if err != nil {
-			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
+		if !writeJSONResponse(c, sub) {
+			return
 		}
-
-		_, err = c.Writer.Write(resBody.Bytes())
-		if err != nil {
-			logger.ApiSrvLog.Errorf("write data error: %+v", err)
-		}
-
-		c.Status(http.StatusOK)
 		return
 	}
 
@@ -44,17 +48,9 @@ func GetSubscriberSummary(c *gin.Context) {
 func GetSubscriberAll(c *gin.Context) {
 	subs := metricdata.GetSubscriberAll()
 	if len(subs) != 0 {
-		resBody, err := openapi.SetBody(subs, "application/json")
-		if err != nil {
-			logger.ApiSrvLog.Errorf("json marshal error %+v", err)
+		if !writeJSONResponse(c, subs) {
+			return
 		}
-
-		_, err = c.Writer.Write(resBody.Bytes())
-		if err != nil {
-			logger.ApiSrvLog.Errorf("write data error: %+v", err)
-		}
-
-		c.Status(http.StatusOK)
 		return
 	}
 
@@ -67,17 +63,9 @@ func GetNfStatus(c *gin.Context) {
 
 	nfs := metricdata.GetNfStatusbyNfType(nfType)
 	if len(nfs) != 0 {
-		resBody, err := openapi.SetBody(nfs, "application/json")
-		if err != nil {
-			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
+		if !writeJSONResponse(c, nfs) {
+			return
 		}
-
-		_, err = c.Writer.Write(resBody.Bytes())
-		if err != nil {
-			logger.ApiSrvLog.Errorf("write data error: %+v", err)
-		}
-
-		c.Status(http.StatusOK)
 		return
 	}
 	logger.ApiSrvLog.Errorln("no nfs data not found")
@@ -88,17 +76,9 @@ func GetNfStatusAll(c *gin.Context) {
 	nfs := metricdata.GetNfStatusAll()
 
 	if len(nfs) != 0 {
-		resBody, err := openapi.SetBody(nfs, "application/json")
-		if err != nil {
-			logger.ApiSrvLog.Errorf("json marshal error %+v", err)
+		if !writeJSONResponse(c, nfs) {
+			return
 		}
-
-		_, err = c.Writer.Write(resBody.Bytes())
-		if err != nil {
-			logger.ApiSrvLog.Errorf("write data error: %+v", err)
-		}
-
-		c.Status(http.StatusOK)
 		return
 	}
 	logger.ApiSrvLog.Errorln("no nfs data not found")
@@ -114,17 +94,9 @@ func GetNfServiceStatsDetail(c *gin.Context) {
 	nfType := c.Params.ByName("type")
 
 	if svcStats, err := metricdata.GetNfServiceStatsDetail(nfType); err == nil {
-		resBody, err := openapi.SetBody(svcStats, "application/json")
-		if err != nil {
-			logger.ApiSrvLog.Errorf("json marshal error: %+v", err)
+		if !writeJSONResponse(c, svcStats) {
+			return
 		}
-
-		_, err = c.Writer.Write(resBody.Bytes())
-		if err != nil {
-			logger.ApiSrvLog.Errorf("write data error: %+v", err)
-		}
-
-		c.Status(http.StatusOK)
 		return
 	}
 	logger.ApiSrvLog.Errorln("no nf service statistics data not found")
