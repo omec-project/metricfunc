@@ -46,4 +46,3 @@ configuration:
   metricFuncEndPoint:
     addr: "metricfunc.aether-5gc.svc"
     port: 5001
-
