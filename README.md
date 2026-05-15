@@ -37,4 +37,3 @@ For more details about the Metric-Function, please refer- https://docs.sd-core.o
 # Reach out to us through
 
 1. #sdcore-dev channel in [Aether Community Slack](https://aether5g-project.slack.com)
-
