@@ -1,14 +1,11 @@
 # SPDX-FileCopyrightText: 2022-present Intel Corporation
 #
 # SPDX-License-Identifier: Apache-2.0
-
 info:
   version: 1.0.0
   description: Metric Collector initial local configuration
-
 logger:
   level: debug
-
 configuration:
   nfStreams:
     - topic:
