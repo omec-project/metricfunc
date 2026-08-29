@@ -15,17 +15,19 @@ output:
 linters:
   enable:
     - asciicheck
+    - bodyclose
     - dogsled
     - govet
     - goconst
     - godox
     - gomodguard_v2
-    - lll
     - misspell
     - nakedret
+    - noctx
     - predeclared
     - staticcheck
     - unconvert
+    - unparam
     - whitespace
   settings:
     errcheck:

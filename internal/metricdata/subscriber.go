@@ -28,14 +28,11 @@ func decSMContextActive() uint64 {
 func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf metricinfo.NfType) {
 	switch subsData.Operation {
 	case metricinfo.SubsOpAdd:
-		err := storeSubscriber(&subsData.Subscriber, sourceNf)
-		if err != nil {
-			logger.CacheLog.Infof("store subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
-		}
+		storeSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpMod:
 		updateSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpDel:
-		err := deleteSubscriber(&subsData.Subscriber, sourceNf)
+		err := deleteSubscriber(&subsData.Subscriber)
 		if err != nil {
 			logger.CacheLog.Infof("delete subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
@@ -44,7 +41,7 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 	}
 }
 
-func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) error {
+func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) {
 	metricData.SubLock.Lock()
 
 	if _, ok := metricData.Subscribers[sub.Imsi]; !ok {
@@ -58,8 +55,6 @@ func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType)
 		metricData.SubLock.Unlock()
 		updateSubscriber(sub, sourceNf)
 	}
-
-	return nil
 }
 
 func updateSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) {
@@ -80,7 +75,7 @@ func updateSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 	}
 }
 
-func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) error {
+func deleteSubscriber(sub *metricinfo.CoreSubscriber) error {
 	metricData.SubLock.Lock()
 	defer metricData.SubLock.Unlock()
 	imsi := sub.Imsi
