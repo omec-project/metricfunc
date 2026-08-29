@@ -14,8 +14,8 @@ import (
 )
 
 type nfServiceStats struct {
+	svcStats    map[string]map[string]uint64
 	svcStatLock sync.RWMutex
-	svcStats    map[string]map[string]uint64 // Nf IP is key
 }
 
 func HandleServiceEvent(msgType *metricinfo.CoreMsgType, sourceNf metricinfo.NfType) {
