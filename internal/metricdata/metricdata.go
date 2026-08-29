@@ -14,11 +14,11 @@ var metricData MetricData
 
 type MetricData struct {
 	Subscribers  map[string]*metricinfo.CoreSubscriber
-	SubLock      sync.RWMutex
-	NfStatusLock sync.RWMutex
 	NfStatus     map[string]*metricinfo.CNfStatus
 	SmfSvcStats  nfServiceStats
 	AmfSvcStats  nfServiceStats
+	SubLock      sync.RWMutex
+	NfStatusLock sync.RWMutex
 }
 
 func init() {

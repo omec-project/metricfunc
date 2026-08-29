@@ -40,8 +40,8 @@ type RogueIPs struct {
 }
 type UserAppService struct {
 	UserAppServiceUrl string   `yaml:"userAppServiceUrl,omitempty" json:"userAppServiceUrl,omitempty"`
-	PollInterval      int      `yaml:"pollInterval,omitempty" json:"pollInterval,omitempty"`
 	RogueIPs          RogueIPs `yaml:"rogueips,omitempty" json:"rogueips,omitempty"`
+	PollInterval      int      `yaml:"pollInterval,omitempty" json:"pollInterval,omitempty"`
 }
 
 type RocService struct {
@@ -50,10 +50,10 @@ type RocService struct {
 }
 
 type SimCard struct {
+	Enable      *bool  `yaml:"enable,omitempty" json:"enable,omitempty"`
 	SimId       string `yaml:"sim-id,omitempty" json:"sim-id,omitempty"`
 	Imsi        string `yaml:"imsi,omitempty" json:"imsi,omitempty"`
 	DisplayName string `yaml:"display-name,omitempty" json:"display-name,omitempty"`
-	Enable      *bool  `yaml:"enable,omitempty" json:"enable,omitempty"`
 }
 type SiteInfo struct {
 	SiteId         string    `yaml:"site-id,omitempty" json:"site-id,omitempty"`

@@ -33,9 +33,9 @@ type Configuration struct {
 }
 
 type ServerAddr struct {
-	Addr         string `yaml:"addr,omitempty"` // IP used to run the server in the node.
+	Addr         string `yaml:"addr,omitempty"`
+	Path         string `yaml:"path,omitempty"`
 	Port         int    `yaml:"port,omitempty"`
-	Path         string `yaml:"path,omitempty"` // IP used to run the server in the node.
 	PollInterval int    `yaml:"pollInterval,omitempty"`
 }
 
@@ -45,8 +45,8 @@ type Urls struct {
 }
 
 type NFStream struct {
-	Urls  []Urls `yaml:"urls,omitempty"`
 	Topic Topic  `yaml:"topic,omitempty"`
+	Urls  []Urls `yaml:"urls,omitempty"`
 }
 
 type Topic struct {
@@ -61,7 +61,7 @@ type Groups struct {
 }
 
 type AnalyticsStream struct {
-	Enable    bool     `yaml:"enable,omitempty"`
-	Urls      []string `yaml:"urls,omitempty"`
 	TopicName string   `yaml:"topicName,omitempty"`
+	Urls      []string `yaml:"urls,omitempty"`
+	Enable    bool     `yaml:"enable,omitempty"`
 }

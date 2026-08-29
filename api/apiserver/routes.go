@@ -6,7 +6,6 @@ package apiserver
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +14,7 @@ import (
 type Route struct {
 	// Name is the name of this Route.
 	Name string
-	// Method is the string for the HTTP method. ex) GET, POST etc..
+	// Method is the string for the HTTP method (e.g., GET, POST, etc.)
 	Method string
 	// Pattern is the pattern of the URI.
 	Pattern string
@@ -31,13 +30,13 @@ func AddService(engine *gin.Engine) *gin.RouterGroup {
 
 	for _, route := range routes {
 		switch route.Method {
-		case "GET":
+		case http.MethodGet:
 			group.GET(route.Pattern, route.HandlerFunc)
-		case "POST":
+		case http.MethodPost:
 			group.POST(route.Pattern, route.HandlerFunc)
-		case "PUT":
+		case http.MethodPut:
 			group.PUT(route.Pattern, route.HandlerFunc)
-		case "DELETE":
+		case http.MethodDelete:
 			group.DELETE(route.Pattern, route.HandlerFunc)
 		}
 	}
@@ -52,61 +51,61 @@ func Index(c *gin.Context) {
 var routes = Routes{
 	{
 		"Index",
-		"GET",
+		http.MethodGet,
 		"/",
 		Index,
 	},
 
 	{
 		"GetSubscriberSummary",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/subscriber/:imsi",
 		GetSubscriberSummary,
 	},
 
 	{
 		"GetSubscriberAll",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/subscriber/all",
 		GetSubscriberAll,
 	},
 
 	{
 		"GetNfStatus",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/nfstatus/:type",
 		GetNfStatus,
 	},
 
 	{
 		"GetNfStatusAll",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/nfstatus/all",
 		GetNfStatusAll,
 	},
 	{
 		"GetNfServiceStatsSummary",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/nfServiceStatsSummary/:type",
 		GetNfServiceStatsSummary,
 	},
 	{
 		"GetNfServiceStatsDetail",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/nfServiceStatsDetail/:type",
 		GetNfServiceStatsDetail,
 	},
 
 	{
 		"GetNfServiceStatsAll",
-		strings.ToUpper("Get"),
+		http.MethodGet,
 		"/nfServiceStats/all",
 		GetNfServiceStatsAll,
 	},
 
 	{
 		"TestIPs",
-		strings.ToUpper("Post"),
+		http.MethodPost,
 		"/testIPs",
 		PushTestIPs,
 	},
