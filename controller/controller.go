@@ -151,7 +151,7 @@ func sendHttpReqMsg(req *http.Request) *http.Response {
 		}
 	}
 	for {
-		cloneReq := req.Clone(context.Background())
+		cloneReq := req.Clone(req.Context())
 		req.Body = io.NopCloser(bytes.NewReader(body))
 		cloneReq.Body = io.NopCloser(bytes.NewReader(body))
 		rsp, err := client.Do(cloneReq)
@@ -289,13 +289,6 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		var siteInfo []SiteInfo
 		if rsp != nil {
 			if rsp.Body != nil {
-				err := json.NewDecoder(rsp.Body).Decode(&siteInfo)
-				if err != nil {
-					logger.ControllerLog.Errorln("unable to decode SiteInfo:", err)
-				} else {
-					logger.ControllerLog.Infoln("GetSiteInfo received from RoC:", siteInfo)
-				}
-
 				b, err := io.ReadAll(rsp.Body)
 				if err != nil {
 					logger.ControllerLog.Warnf("error reading body: %v", err)
@@ -303,6 +296,12 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 
 				if closeErr := rsp.Body.Close(); closeErr != nil {
 					logger.ControllerLog.Warnf("body close error: %v", closeErr)
+				}
+
+				if err := json.Unmarshal(b, &siteInfo); err != nil {
+					logger.ControllerLog.Errorln("unable to decode SiteInfo:", err)
+				} else {
+					logger.ControllerLog.Infoln("GetSiteInfo received from RoC:", siteInfo)
 				}
 
 				logger.ControllerLog.Infof("SimDetails received from RoC: %s", string(b))
@@ -341,6 +340,7 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, rocDisableImsiApi, reqMsgBody)
 				if err != nil {
 					logger.ControllerLog.Warnf("error with new request: %v", err)
+					return
 				}
 
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
