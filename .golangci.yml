@@ -15,17 +15,19 @@ output:
 linters:
   enable:
     - asciicheck
+    - bodyclose
     - dogsled
     - govet
     - goconst
     - godox
     - gomodguard_v2
-    - lll
     - misspell
     - nakedret
+    - noctx
     - predeclared
     - staticcheck
     - unconvert
+    - unparam
     - whitespace
   settings:
     errcheck:
@@ -69,9 +71,6 @@ linters:
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-    lll:
-      line-length: 120
-      tab-width: 1
     nakedret:
       max-func-lines: 30
     nestif:

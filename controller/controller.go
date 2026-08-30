@@ -71,7 +71,7 @@ func InitControllerConfig(CConfig *config.Config) error {
 			Transport: &http2.Transport{
 				AllowHTTP: true,
 				DialTLS: func(network, addr string, _ *tls.Config) (net.Conn, error) {
-					return net.Dial(network, addr)
+					return (&net.Dialer{}).DialContext(context.Background(), network, addr)
 				},
 			},
 			Timeout: 5 * time.Second,
@@ -139,7 +139,7 @@ func sendHttpReqMsgWithoutRetry(req *http.Request) (*http.Response, error) {
 	}
 }
 
-func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
+func sendHttpReqMsg(req *http.Request) *http.Response {
 	// Keep sending request to http server until response is success
 	var retries uint = 0
 	var body []byte
@@ -151,7 +151,7 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 		}
 	}
 	for {
-		cloneReq := req.Clone(context.Background())
+		cloneReq := req.Clone(req.Context())
 		req.Body = io.NopCloser(bytes.NewReader(body))
 		cloneReq.Body = io.NopCloser(bytes.NewReader(body))
 		rsp, err := client.Do(cloneReq)
@@ -172,7 +172,7 @@ func sendHttpReqMsg(req *http.Request) (*http.Response, error) {
 				logger.ControllerLog.Warnf("body close error: %v", err)
 			}
 
-			return rsp, nil
+			return rsp
 		} else {
 			nextInterval := getNextBackoffInterval(retries, 2)
 			logger.ControllerLog.Warnf(
@@ -205,24 +205,22 @@ func validateIPs(ips RogueIPs) (validIps RogueIPs) {
 func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 	userAppServerApi := userAppClient.UserAppServiceUrl
 	logger.ControllerLog.Infoln("userAppApp Url:", userAppServerApi)
-	req, err := http.NewRequest(http.MethodGet, userAppServerApi, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, userAppServerApi, nil)
 	if err != nil {
 		logger.ControllerLog.Errorln("an error occurred", err)
 		return
 	}
 
 	for {
-		rsp, httpErr := sendHttpReqMsg(req)
-		if httpErr != nil {
-			logger.ControllerLog.Errorf("get message [%v] returned error [%+v]", userAppServerApi, err)
-			time.Sleep(10 * time.Second)
-			continue
-		}
+		rsp := sendHttpReqMsg(req)
 
 		var rogueIPs RogueIPs
 		if rsp != nil {
 			if rsp.Body != nil {
 				err := json.NewDecoder(rsp.Body).Decode(&rogueIPs)
+				if closeErr := rsp.Body.Close(); closeErr != nil {
+					logger.ControllerLog.Warnf("body close error: %v", closeErr)
+				}
 				if err != nil {
 					logger.ControllerLog.Errorln("userAppApp response body decode failed:", err)
 				} else {
@@ -244,20 +242,23 @@ func (userAppClient *UserAppService) GetRogueIPs(rogueIPChannel chan RogueIPs) {
 
 func (rocClient *RocService) GetTargets() (names []Targets) {
 	rocTargetsApi := rocClient.RocServiceUrl + "/aether-roc-api/targets"
-	req, err := http.NewRequest(http.MethodGet, rocTargetsApi, nil)
+	req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, rocTargetsApi, nil)
 	if err != nil {
 		logger.ControllerLog.Errorf("get targets request error occurred %v", err)
-		return
+		return names
 	}
 	rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 	if httpErr != nil {
 		logger.ControllerLog.Errorf("get message [%v] returned error [%v]", rocTargetsApi, httpErr.Error())
-		return
+		return names
 	}
 
 	if rsp != nil {
 		if rsp.Body != nil {
 			err := json.NewDecoder(rsp.Body).Decode(&names)
+			if closeErr := rsp.Body.Close(); closeErr != nil {
+				logger.ControllerLog.Warnf("body close error: %v", closeErr)
+			}
 			if err != nil {
 				logger.ControllerLog.Errorln("unable to decode Targets:", err)
 			} else {
@@ -269,13 +270,13 @@ func (rocClient *RocService) GetTargets() (names []Targets) {
 	} else {
 		logger.ControllerLog.Errorln("get targets http response is empty")
 	}
-	return
+	return names
 }
 
 func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 	for _, target := range targets {
 		rocSiteApi := rocClient.RocServiceUrl + "/aether-roc-api/aether/v2.1.x/" + target.EnterpriseId + "/site"
-		req, err := http.NewRequest(http.MethodGet, rocSiteApi, nil)
+		req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, rocSiteApi, nil)
 		if err != nil {
 			logger.ControllerLog.Errorf("GetSiteInfo request error occurred %v", err)
 			return
@@ -288,16 +289,19 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 		var siteInfo []SiteInfo
 		if rsp != nil {
 			if rsp.Body != nil {
-				err := json.NewDecoder(rsp.Body).Decode(&siteInfo)
-				if err != nil {
-					logger.ControllerLog.Errorln("unable to decode SiteInfo:", err)
-				} else {
-					logger.ControllerLog.Infoln("GetSiteInfo received from RoC:", siteInfo)
-				}
-
 				b, err := io.ReadAll(rsp.Body)
 				if err != nil {
 					logger.ControllerLog.Warnf("error reading body: %v", err)
+				}
+
+				if closeErr := rsp.Body.Close(); closeErr != nil {
+					logger.ControllerLog.Warnf("body close error: %v", closeErr)
+				}
+
+				if err := json.Unmarshal(b, &siteInfo); err != nil {
+					logger.ControllerLog.Errorln("unable to decode SiteInfo:", err)
+				} else {
+					logger.ControllerLog.Infoln("GetSiteInfo received from RoC:", siteInfo)
 				}
 
 				logger.ControllerLog.Infof("SimDetails received from RoC: %s", string(b))
@@ -333,15 +337,21 @@ func (rocClient *RocService) DisableSimcard(targets []Targets, imsi string) {
 				logger.ControllerLog.Debugln("rest API to disable imsi:", rocDisableImsiApi)
 				logger.ControllerLog.Debugln("post msg body:", reqMsgBody)
 
-				req, err := http.NewRequest(http.MethodPost, rocDisableImsiApi, reqMsgBody)
+				req, err := http.NewRequestWithContext(context.Background(), http.MethodPost, rocDisableImsiApi, reqMsgBody)
 				if err != nil {
 					logger.ControllerLog.Warnf("error with new request: %v", err)
+					return
 				}
 
 				req.Header.Set("Content-Type", "application/json; charset=utf-8")
-				_, httpErr := sendHttpReqMsgWithoutRetry(req)
+				rsp, httpErr := sendHttpReqMsgWithoutRetry(req)
 				if httpErr != nil {
 					logger.ControllerLog.Errorf("post message [%v] returned error [%v]", rocDisableImsiApi, httpErr.Error())
+				}
+				if rsp != nil && rsp.Body != nil {
+					if closeErr := rsp.Body.Close(); closeErr != nil {
+						logger.ControllerLog.Warnf("body close error: %v", closeErr)
+					}
 				}
 				return
 			}
