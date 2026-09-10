@@ -7,7 +7,6 @@ package controller
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -21,7 +20,6 @@ import (
 	"github.com/omec-project/metricfunc/internal/metricdata"
 	"github.com/omec-project/metricfunc/internal/promclient"
 	"github.com/omec-project/metricfunc/logger"
-	"golang.org/x/net/http2"
 )
 
 var (
@@ -66,15 +64,24 @@ func InitControllerConfig(CConfig *config.Config) error {
 	logger.ControllerLog.Infoln("controller configuration")
 
 	// set http client
-	if ControllerConfig.Info.HttpVersion == 2 {
+	httpVersion := 1
+	if ControllerConfig.Info != nil {
+		httpVersion = ControllerConfig.Info.HttpVersion
+	}
+	if httpVersion == 2 {
+		transport := &http.Transport{
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 100,
+			MaxConnsPerHost:     0,
+			IdleConnTimeout:     90 * time.Second,
+			DisableKeepAlives:   false,
+		}
+		// h2c requires HTTP1 to stay unset; setting it would make the transport fall back to HTTP/1.1
+		transport.Protocols = new(http.Protocols)
+		transport.Protocols.SetUnencryptedHTTP2(true)
 		client = &http.Client{
-			Transport: &http2.Transport{
-				AllowHTTP: true,
-				DialTLSContext: func(ctx context.Context, network, addr string, _ *tls.Config) (net.Conn, error) {
-					return (&net.Dialer{}).DialContext(ctx, network, addr)
-				},
-			},
-			Timeout: 5 * time.Second,
+			Transport: transport,
+			Timeout:   5 * time.Second,
 		}
 	} else {
 		client = &http.Client{
