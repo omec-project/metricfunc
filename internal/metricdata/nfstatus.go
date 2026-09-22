@@ -39,6 +39,12 @@ func HandleNfStatusEvent(nfStatus *metricinfo.CNfStatus) {
 
 	metricData.NfStatus[nfStatus.NfName] = nfStatus
 
+	// gNB connectivity is already exported natively by the AMF as gnb_session_profile, at
+	// per-TAC granularity; only UPF has no native connectivity gauge of its own.
+	if nfStatus.NfType != metricinfo.NfTypeUPF {
+		return
+	}
+
 	if nfStatus.NfStatus == metricinfo.NfStatusConnected {
 		promclient.SetNfStatus(nfStatus.NfName, string(nfStatus.NfType), string(nfStatus.NfStatus), 1)
 	} else {
