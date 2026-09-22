@@ -29,6 +29,18 @@ func smSessKeyOf(sub *metricinfo.CoreSubscriber) smSessKey {
 	return smSessKey{smfIP: sub.SmfIp, slice: sub.Slice, dnn: sub.Dnn, upf: sub.UpfName}
 }
 
+// smSessPresence tracks, per subscriber imsi, whether SMF and AMF sourced data is
+// currently active. AMF and SMF publish independent Add/Mod/Del sequences for the
+// same UE, so a subscriber's counted smf_pdu_sessions tuple must only be touched by
+// the source that owns it, and the record can only be dropped once neither source
+// still has it active. Access is guarded by metricData.SubLock, same as
+// metricData.Subscribers.
+type smSessPresence struct {
+	smf, amf bool
+}
+
+var subPresences = map[string]*smSessPresence{}
+
 func incSmSessCount(sub *metricinfo.CoreSubscriber) {
 	key := smSessKeyOf(sub)
 	smSessCounts[key]++
@@ -67,7 +79,7 @@ func HandleSubscriberEvent(subsData *metricinfo.CoreSubscriberData, sourceNf met
 	case metricinfo.SubsOpMod:
 		updateSubscriber(&subsData.Subscriber, sourceNf)
 	case metricinfo.SubsOpDel:
-		err := deleteSubscriber(&subsData.Subscriber)
+		err := deleteSubscriber(&subsData.Subscriber, sourceNf)
 		if err != nil {
 			logger.CacheLog.Infof("delete subscriber %v failed for sourceNF [%v]", subsData.Subscriber.Imsi, sourceNf)
 		}
@@ -92,10 +104,17 @@ func storeSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType)
 func addSubscriberLocked(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) {
 	metricData.Subscribers[sub.Imsi] = sub
 
+	p := &smSessPresence{}
 	// Only an SMF-sourced event carries real PDU session context
-	if sourceNf == metricinfo.NfTypeSmf {
+	switch sourceNf {
+	case metricinfo.NfTypeSmf:
+		p.smf = true
 		incSmSessCount(sub)
+	case metricinfo.NfTypeAmf:
+		p.amf = true
 	}
+	subPresences[sub.Imsi] = p
+
 	logger.CacheLog.Debugf("storing subscriber with imsi [%s]", sub.Imsi)
 	pushPrometheusCoreSubData(sub)
 }
@@ -115,23 +134,37 @@ func updateSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType
 
 	deletePrometheusCoreSubData(s)
 
+	p := subPresences[s.Imsi]
+	if p == nil {
+		p = &smSessPresence{}
+		subPresences[s.Imsi] = p
+	}
+
 	switch sourceNf {
 	case metricinfo.NfTypeSmf:
 		// SMF specific fields
 		oldKey := smSessKeyOf(s)
+		wasCounted := p.smf
 		fillSmfSubsriberData(sub, s)
-		if newKey := smSessKeyOf(s); newKey != oldKey {
+		switch newKey := smSessKeyOf(s); {
+		case !wasCounted:
+			// First SMF-sourced data for a subscriber the AMF added earlier: oldKey was never
+			// counted, so only increment the new tuple instead of migrating from it.
+			incSmSessCount(s)
+			p.smf = true
+		case newKey != oldKey:
 			decSmSessCount(&metricinfo.CoreSubscriber{SmfIp: oldKey.smfIP, Slice: oldKey.slice, Dnn: oldKey.dnn, UpfName: oldKey.upf})
 			incSmSessCount(s)
 		}
 	case metricinfo.NfTypeAmf:
 		// AMF specific fields
 		fillAmfSubsriberData(sub, s)
+		p.amf = true
 	}
 	pushPrometheusCoreSubData(s)
 }
 
-func deleteSubscriber(sub *metricinfo.CoreSubscriber) error {
+func deleteSubscriber(sub *metricinfo.CoreSubscriber, sourceNf metricinfo.NfType) error {
 	metricData.SubLock.Lock()
 	defer metricData.SubLock.Unlock()
 	imsi := sub.Imsi
@@ -140,14 +173,39 @@ func deleteSubscriber(sub *metricinfo.CoreSubscriber) error {
 		return fmt.Errorf("subscriber with imsi [%s] already deleted", imsi)
 	}
 
-	decSmSessCount(s)
+	p := subPresences[imsi]
+	if p == nil {
+		p = &smSessPresence{}
+	}
+
 	deletePrometheusCoreSubData(s)
-	s.SmfSubState = sub.SmfSubState
-	s.AmfSubState = sub.AmfSubState
+
+	// AMF publishes SubsOpDel when it tears down the UE context independently of whether
+	// the SMF PDU session has ended, so only clear this source's own presence and session
+	// bookkeeping; the other source's data survives until it reports its own delete.
+	switch sourceNf {
+	case metricinfo.NfTypeSmf:
+		if p.smf {
+			decSmSessCount(s)
+			p.smf = false
+		}
+		s.SmfSubState = sub.SmfSubState
+	case metricinfo.NfTypeAmf:
+		p.amf = false
+		s.AmfSubState = sub.AmfSubState
+	}
 
 	// register disconnect state
 	pushPrometheusCoreSubData(s)
+
+	if p.smf || p.amf {
+		subPresences[imsi] = p
+		logger.CacheLog.Debugf("subscriber with imsi [%s] still active for the other NF after sourceNF [%v] delete", imsi, sourceNf)
+		return nil
+	}
+
 	delete(metricData.Subscribers, imsi)
+	delete(subPresences, imsi)
 
 	// register subscriber delete
 	deletePrometheusCoreSubData(s)
@@ -204,6 +262,11 @@ func fillSmfSubsriberData(s, d *metricinfo.CoreSubscriber) {
 	// ip-addr
 	if s.IPAddress != "" {
 		d.IPAddress = s.IPAddress
+	}
+
+	// smf ip
+	if s.SmfIp != "" {
+		d.SmfIp = s.SmfIp
 	}
 
 	// slice

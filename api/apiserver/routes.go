@@ -83,19 +83,6 @@ var routes = Routes{
 		"/nfstatus/all",
 		GetNfStatusAll,
 	},
-	{
-		"GetNfServiceStatsSummary",
-		http.MethodGet,
-		"/nfServiceStatsSummary/:type",
-		GetNfServiceStatsSummary,
-	},
-
-	{
-		"GetNfServiceStatsAll",
-		http.MethodGet,
-		"/nfServiceStats/all",
-		GetNfServiceStatsAll,
-	},
 
 	{
 		"TestIPs",

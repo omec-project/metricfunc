@@ -85,14 +85,6 @@ func GetNfStatusAll(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{})
 }
 
-// Gives summary stats for any service
-func GetNfServiceStatsSummary(c *gin.Context) {
-}
-
-// Gives summary of all services
-func GetNfServiceStatsAll(c *gin.Context) {
-}
-
 func PushTestIPs(c *gin.Context) {
 	requestBody, err := c.GetRawData()
 	if err != nil {
