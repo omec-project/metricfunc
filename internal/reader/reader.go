@@ -76,7 +76,9 @@ func reader(r *kafka.Reader) {
 		case metricinfo.CSubscriberEvt:
 			metricdata.HandleSubscriberEvent(&metricEvent.SubscriberData, sourceNf)
 		case metricinfo.CMsgTypeEvt:
-			metricdata.HandleServiceEvent(&metricEvent.MsgType, sourceNf)
+			// No producer publishes this anymore: SMF and AMF now expose message-type
+			// counters natively instead of duplicating them here over Kafka.
+			logger.AppLog.Debugf("ignoring deprecated msg-type event from [%v]", sourceNf)
 		case metricinfo.CNfStatusEvt:
 			metricdata.HandleNfStatusEvent(&metricEvent.NfStatusData)
 		default:

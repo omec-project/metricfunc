@@ -19,17 +19,15 @@ SPDX-License-Identifier: Apache-2.0
 # Types of Statistics
 1. Core Subscriber information
 2. Network Function Status(only UPF and GNodeB supported)
-3. Core Message Statistics(only SMF and AMF supported)
 
 # API Server APIs supported
 1. GetSubscriberSummary (/nmetric-func/v1/subscriber/<imsi>)
 2. GetSubscriberAll (/nmetric-func/v1/subscriber/all)
 3. GetNfStatus (/nmetric-func/v1/nfstatus/<GNB/UPF>)
-4. GetNfServiceStats (/nmetric-func/v1/nfServiceStatsSummary/<AMF/SMF>)
-5. GetNfServiceStatsAll (/nmetric-func/v1/nfServiceStats/all)
+4. GetNfStatusAll (/nmetric-func/v1/nfstatus/all)
 
 
-For more details about the Grafana Dashboard, please refer- https://docs.aetherproject.org/master/developer/aiabhw5g.html#enable-monitoring
+For more details about the Grafana Dashboard, please refer- https://docs.aetherproject.org/developer/monitoring.html
 
 For more details about the Metric-Function, please refer- https://docs.sd-core.opennetworking.org/master/design/design-metricfunc.html
 

@@ -15,8 +15,6 @@ var metricData MetricData
 type MetricData struct {
 	Subscribers  map[string]*metricinfo.CoreSubscriber
 	NfStatus     map[string]*metricinfo.CNfStatus
-	SmfSvcStats  nfServiceStats
-	AmfSvcStats  nfServiceStats
 	SubLock      sync.RWMutex
 	NfStatusLock sync.RWMutex
 }
@@ -25,7 +23,5 @@ func init() {
 	metricData = MetricData{
 		Subscribers: make(map[string]*metricinfo.CoreSubscriber),
 		NfStatus:    make(map[string]*metricinfo.CNfStatus),
-		SmfSvcStats: nfServiceStats{svcStats: make(map[string]map[string]uint64)},
-		AmfSvcStats: nfServiceStats{svcStats: make(map[string]map[string]uint64)},
 	}
 }

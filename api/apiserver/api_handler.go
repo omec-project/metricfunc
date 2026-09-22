@@ -85,28 +85,6 @@ func GetNfStatusAll(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{})
 }
 
-// Gives summary stats for any service
-func GetNfServiceStatsSummary(c *gin.Context) {
-}
-
-// Gives detail stats of any service
-func GetNfServiceStatsDetail(c *gin.Context) {
-	nfType := c.Params.ByName("type")
-
-	if svcStats, err := metricdata.GetNfServiceStatsDetail(nfType); err == nil {
-		if !writeJSONResponse(c, svcStats) {
-			return
-		}
-		return
-	}
-	logger.ApiSrvLog.Errorln("no nf service statistics data not found")
-	c.JSON(http.StatusNotFound, gin.H{})
-}
-
-// Gives summary of all services
-func GetNfServiceStatsAll(c *gin.Context) {
-}
-
 func PushTestIPs(c *gin.Context) {
 	requestBody, err := c.GetRawData()
 	if err != nil {
