@@ -5,8 +5,11 @@
 package promclient
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/omec-project/metricfunc/config"
 	"github.com/omec-project/metricfunc/logger"
@@ -31,12 +34,28 @@ func init() {
 	}
 }
 
-func StartPrometheusClient(cfg *config.ServerAddr) {
+// StartPrometheusClient serves /metrics until ctx is cancelled, then shuts the
+// server down, waiting at most 5 s for requests in flight.
+func StartPrometheusClient(ctx context.Context, cfg *config.ServerAddr) {
 	logger.PromLog.Debugf("prometheus server initialised on address [%v] port [%v]", cfg.Addr, cfg.Port)
 	HTTPAddr := fmt.Sprintf(":%d", cfg.Port)
-	http.Handle("/metrics", promhttp.Handler())
-	if err := http.ListenAndServe(HTTPAddr, nil); err != nil {
-		logger.PromLog.Errorf("failed to start http server: %v", err)
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler())
+	server := &http.Server{Addr: HTTPAddr, Handler: mux, ReadHeaderTimeout: 10 * time.Second}
+	serveErr := make(chan error, 1)
+	go func() { serveErr <- server.ListenAndServe() }()
+	select {
+	case err := <-serveErr:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			logger.PromLog.Errorf("failed to start http server: %v", err)
+		}
+	case <-ctx.Done():
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err := server.Shutdown(shutdownCtx); err != nil {
+			logger.PromLog.Warnf("prometheus server shutdown: %v", err)
+		}
+		logger.PromLog.Infoln("prometheus server stopped")
 	}
 }
 

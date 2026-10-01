@@ -5,13 +5,17 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
 	"os"
+	"os/signal"
 	"strconv"
+	"sync"
+	"syscall"
 
 	"github.com/omec-project/metricfunc/api/apiserver"
 	"github.com/omec-project/metricfunc/config"
@@ -58,14 +62,28 @@ func main() {
 
 	logger.AppLog.Infof("configuration: %+v", cfg.Configuration)
 
+	// SIGTERM (a pod delete or a rollout) and Ctrl-C stop the servers; main then
+	// returns and the process exits 0.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	var servers sync.WaitGroup
+
 	// Start Kafka Event Reader
 	reader.StartKafkaReader(cfg.Configuration)
 
 	// Start API Server
-	go apiserver.StartApiServer(&cfg.Configuration.ApiServer)
+	servers.Add(1)
+	go func() {
+		defer servers.Done()
+		apiserver.StartApiServer(ctx, &cfg.Configuration.ApiServer)
+	}()
 
 	// Start Prometheus client
-	go promclient.StartPrometheusClient(&cfg.Configuration.PrometheusServer)
+	servers.Add(1)
+	go func() {
+		defer servers.Done()
+		promclient.StartPrometheusClient(ctx, &cfg.Configuration.PrometheusServer)
+	}()
 
 	if cfg.Configuration.ControllerFlag {
 		// controller
@@ -100,6 +118,10 @@ func main() {
 		}()
 	}
 
-	// Start MongoDB
-	select {}
+	<-ctx.Done()
+	logger.AppLog.Infoln("terminating metricfunc")
+	// The Kafka readers have no consumer group to leave; they end with the
+	// process.
+	servers.Wait()
+	logger.AppLog.Infoln("metricfunc terminated")
 }
