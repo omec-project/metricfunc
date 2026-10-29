@@ -4,11 +4,12 @@ SPDX-FileCopyrightText: 2022-present Intel Corporation
 SPDX-License-Identifier: Apache-2.0
 -->
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/omec-project/metricfunc/badge)](https://scorecard.dev/viewer/?uri=github.com/omec-project/metricfunc)
+[![GitHub latest release (SemVer)](https://img.shields.io/github/v/release/omec-project/metricfunc?sort=semver)](https://github.com/omec-project/metricfunc/releases)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://spdx.org/licenses/Apache-2.0.html)
 
 # Metric Function
 
-![Metric Function Architecture](/docs/images/Metric_Function_Arch.png)
-
+![Metric Function Architecture](./docs/images/Metric_Function_Arch.png)
 
 
 # Supported Features
@@ -29,7 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 
 For more details about the Grafana Dashboard, please refer- https://docs.aetherproject.org/developer/monitoring.html
 
-For more details about the Metric-Function, please refer- https://docs.sd-core.opennetworking.org/master/design/design-metricfunc.html
+For more details about the Metric-Function, please refer- https://docs.sd-core.aetherproject.org/design/design-metricfunc.html
 
 # Reach out to us through
 
