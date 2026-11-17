@@ -1,11 +1,11 @@
 module github.com/omec-project/metricfunc
 
-go 1.27.0
+go 1.27.4
 
 require (
 	github.com/gin-gonic/gin v1.12.0
-	github.com/omec-project/openapi/v2 v2.5.0
-	github.com/omec-project/util v1.10.1
+	github.com/omec-project/openapi/v2 v2.5.1
+	github.com/omec-project/util v1.10.2
 	github.com/prometheus/client_golang v1.25.0
 	github.com/segmentio/kafka-go v0.4.51
 	go.uber.org/zap v1.28.0
@@ -48,7 +48,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/arch v0.33.0 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
-	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/net v0.63.0 // indirect
 	golang.org/x/sys v0.50.0 // indirect
 	golang.org/x/text v0.44.0 // indirect
 	google.golang.org/protobuf v1.36.12 // indirect
